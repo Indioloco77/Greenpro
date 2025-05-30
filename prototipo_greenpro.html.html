@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de apostas GreenPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; 
+            color: #334155; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 1600px; 
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+            padding: 1rem; 
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #4ade80; 
+            color: #ffffff;
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; 
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #22c55e; 
+        }
+        .btn-primary:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #64748b; 
+            color: #ffffff;
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; 
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #475569; 
+        }
+        .btn-success { 
+            background-color: #10b981; 
+            color: #ffffff;
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; 
+            transition: background-color 0.3s ease;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        .btn-warning { 
+            background-color: #f59e0b; 
+            color: #ffffff;
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; 
+            transition: background-color 0.3s ease;
+        }
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem; 
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .input-field, .select-field {
+            border: 1px solid #cbd5e1; 
+            border-radius: 0.375rem; 
+            padding: 0.5rem 0.75rem; 
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #334155;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate; 
+            border-spacing: 0;
+        }
+        th, td { /* Estilo base para th e td */
+            padding: 0.5rem; 
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0; 
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Estilo para células do cabeçalho da tabela de histórico */
+        #betHistoryCard table thead th {
+            background-color: #f8fafc; 
+            font-weight: 600;
+            color: #475569; 
+            cursor: pointer; 
+            white-space: nowrap; /* Cabeçalhos não devem quebrar linha */
+        }
+        #betHistoryCard table thead th:hover {
+            background-color: #e2e8f0; 
+        }
+
+        /* Estilo geral para células do corpo da tabela de histórico */
+        #betHistoryCard table tbody td {
+            white-space: nowrap; /* Impede a quebra de linha */
+            vertical-align: middle; /* Garante alinhamento vertical */
+        }
+
+        /* Para colunas específicas que podem ter texto longo */
+        #betHistoryCard table tbody td.game-event-cell {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 350px; /* Aumentado para exibir mais texto */
+        }
+        #betHistoryCard table tbody td.platform-cell,
+        #betHistoryCard table tbody td.nature-cell {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px; /* Ajustado para manter um bom layout */
+        }
+        .game-event-cell { cursor: pointer; } 
+
+
+        /* Célula de ações: garantir que os botões fiquem na mesma linha */
+        #betHistoryCard table tbody td.actions-cell {
+            min-width: 110px; 
+        }
+        #betHistoryCard table tbody td.actions-cell button {
+            margin-bottom: 0; 
+            margin-right: 0.25rem; 
+        }
+        #betHistoryCard table tbody td.actions-cell button:last-child {
+            margin-right: 0; 
+        }
+
+
+        .standard-height-cell { 
+            min-height: 3rem; 
+            vertical-align: middle; 
+            display: table-cell; 
+        }
+        th.checkbox-cell, td.checkbox-cell {
+            width: 1%; 
+            min-width: 40px; 
+            white-space: nowrap;
+            text-align: center;
+            overflow: visible; 
+        }
+      
+        tr:last-child td { 
+            border-bottom: none;
+        }
+        
+        th.freebet-column, td.freebet-column {
+            font-size: 0.8rem;      
+            padding: 0.5rem 0.25rem; 
+            text-align: center;     
+            width: 60px;            
+            min-width: 60px;
+            max-width: 60px;
+            white-space: nowrap; 
+        }
+
+        .summary-card {
+            background-color: #f0fdf4; 
+            border-left: 3px solid #4ade80; 
+            border-radius: 0.5rem; 
+            padding: 0.75rem; 
+            margin-bottom: 0.75rem; 
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .summary-card-filtered { 
+            background-color: #eef2ff; 
+            border-left: 3px solid #6366f1; 
+            border-radius: 0.5rem; 
+            padding: 0.75rem; 
+            margin-bottom: 0.75rem; 
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .summary-card-compact {
+            background-color: #f0fdf4;
+            border-left: 2px solid #4ade80; 
+            border-radius: 0.375rem; 
+            padding: 0.5rem; 
+            margin-bottom: 0.5rem; 
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
+            flex: 1 1 280px; 
+            min-width: 250px; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .summary-card-compact h3 {
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            margin-bottom: 0.125rem; 
+        }
+        .summary-card-compact p {
+            font-size: 0.75rem; 
+            line-height: 1.25; 
+        }
+        .profit { 
+            color: #15803d; 
+            font-weight: 600;
+        }
+        .loss {
+            color: #dc2626; 
+            font-weight: 600;
+        }
+        .push { 
+            color: #f59e0b; 
+            font-weight: 600;
+        }
+        .pending { 
+            color: #64748b; 
+            font-weight: 600;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 1.5rem; 
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 500px; 
+            width: 90%;
+            text-align: center;
+            transform: scale(0.95);
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem; 
+            margin-top: 1rem; 
+        }
+        .modal-button {
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .modal-button.cancel {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+        .modal-button.cancel:hover {
+            background-color: #cbd5e1;
+        }
+        .modal-button.confirm {
+            background-color: #4ade80; 
+            color: #ffffff;
+        }
+        .modal-button.confirm:hover {
+            background-color: #22c55e; 
+        }
+        .modal-button.confirm-danger { 
+             background-color: #ef4444; 
+            color: #ffffff;
+        }
+        .modal-button.confirm-danger:hover {
+            background-color: #dc2626;
+        }
+        .modal-button.ok {
+            background-color: #4ade80; 
+            color: #ffffff;
+        }
+        .modal-button.ok:hover {
+            background-color: #22c55e; 
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem; 
+            margin-top: 0.25rem; 
+        }
+        .leg-entry {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background-color: #f9fafb; 
+            margin-bottom: 0.75rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .bankroll-tab {
+            padding: 0.75rem 1rem; 
+            font-size: 0.875rem; 
+            font-weight: 500; 
+            color: #6b7280; 
+            border-bottom-width: 2px;
+            border-color: transparent;
+            position: relative; 
+            display: inline-flex; 
+            align-items: center;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        .bankroll-tab:hover {
+            color: #4b5563; 
+            border-color: #d1d5db; 
+        }
+        .bankroll-tab[data-active="true"] {
+            border-color: #4ade80; 
+            color: #22c55e; 
+        }
+        .bankroll-tab-icon {
+            font-size: 0.8rem; 
+            margin-left: 8px;
+            cursor: pointer;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            line-height: 1;
+        }
+        .bankroll-tab-icon.edit:hover {
+            background-color: #e0e7ff; 
+            color: #3730a3; 
+        }
+        .bankroll-tab-icon.delete:hover {
+            background-color: #fee2e2; 
+            color: #b91c1c; 
+        }
+        .accordion-header {
+            background-color: #f8fafc;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease, border-color 0.3s ease;
+        }
+        .accordion-header:hover {
+            background-color: #e2e8f0;
+        }
+        .accordion-header h3 {
+            margin-bottom: 0; 
+        }
+        .accordion-content {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            display: none; 
+            background-color: #fdfdff;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .accordion-content.open {
+            display: flex; 
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 0.5rem; 
+            align-items: flex-start;
+            content-align: flex-start;
+        }
+        .accordion-item {
+            margin-bottom: 0.75rem;
+        }
+        .accordion-arrow {
+            transition: transform 0.3s ease;
+        }
+        .accordion-arrow.open {
+            transform: rotate(90deg);
+        }
+
+        /* Estilos Modo Noturno */
+        body.dark {
+            background-color: #1f2937; 
+            color: #d1d5db; 
+        }
+        body.dark .card {
+            background-color: #374151; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        body.dark h1, body.dark h2, body.dark h3, body.dark h4, body.dark label, body.dark p {
+            color: #f3f4f6; 
+        }
+        body.dark .input-field, body.dark .select-field {
+            background-color: #4b5563; 
+            color: #f3f4f6; 
+            border-color: #6b7280; 
+        }
+        body.dark .select-field option { 
+            background-color: #4b5563;
+            color: #f3f4f6;
+        }
+        body.dark table th { 
+            background-color: #4b5563; 
+            color: #d1d5db; 
+        }
+        body.dark table th:hover { 
+            background-color: #525f70; 
+        }
+        body.dark table td { 
+            border-bottom-color: #4b5563; 
+        }
+        body.dark .profit { color: #34d399; } 
+        body.dark .loss { color: #f87171; } 
+        body.dark .push { color: #fbbf24; } 
+        body.dark .pending { color: #9ca3af; } 
+
+        body.dark .summary-card {
+            background-color: #2d3748; 
+            border-left-color: #34d399;
+        }
+         body.dark .summary-card-filtered {
+            background-color: #3730a3; 
+            border-left-color: #818cf8; 
+        }
+        body.dark .summary-card-compact {
+            background-color: #2d3748;
+            border-left-color: #34d399;
+        }
+        body.dark .summary-card-compact p, body.dark .summary-card p {
+             color: #cbd5e1; 
+        }
+
+
+        body.dark .modal-content {
+            background-color: #374151; 
+        }
+        body.dark .modal-button.cancel {
+            background-color: #4b5563; 
+            color: #d1d5db; 
+        }
+        body.dark .modal-button.cancel:hover {
+            background-color: #525f70;
+        }
+        body.dark .bankroll-tab {
+            color: #9ca3af; 
+        }
+        body.dark .bankroll-tab:hover {
+            color: #e5e7eb; 
+            border-color: #4b5563; 
+        }
+        body.dark .bankroll-tab[data-active="true"] {
+            border-color: #34d399; 
+            color: #34d399; 
+        }
+        body.dark .accordion-header {
+            background-color: #4b5563;
+            border-color: #525f70;
+        }
+        body.dark .accordion-header:hover {
+            background-color: #525f70;
+        }
+        body.dark .accordion-content {
+            background-color: #374151;
+            border-color: #4b5563;
+        }
+        body.dark .leg-entry {
+            background-color: #4b5563;
+            border-color: #525f70;
+        }
+        body.dark #activeBankrollDetails > div { 
+             background-color: #4b5563; 
+             border-color: #525f70;
+        }
+        body.dark #bankrollTabsContainer {
+            border-bottom-color: #4b5563;
+        }
+         body.dark .btn-primary { background-color: #22c55e; }
+         body.dark .btn-primary:hover { background-color: #16a34a; }
+         body.dark .btn-secondary { background-color: #4b5563; }
+         body.dark .btn-secondary:hover { background-color: #525f70; }
+         body.dark .btn-success { background-color: #059669; }
+         body.dark .btn-success:hover { background-color: #047857; }
+         body.dark .btn-warning { background-color: #d97706; }
+         body.dark .btn-warning:hover { background-color: #b45309; }
+
+        #themeToggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        #themeToggle {
+            background-color: #e2e8f0; 
+            color: #334155; 
+            border: 1px solid #cbd5e1; 
+        }
+        #themeToggle:hover {
+            background-color: #cbd5e1; 
+        }
+        body.dark #themeToggle {
+            background-color: #4b5563; 
+            color: #f3f4f6; 
+            border: 1px solid #6b7280; 
+        }
+        body.dark #themeToggle:hover {
+            background-color: #6b7280; 
+        }
+
+    </style>
+</head>
+<body class="p-2 md:p-4">
+    <button id="themeToggle">🌙 Modo Escuro</button>
+
+    <div class="container mx-auto">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Controle de apostas GreenPro</h1>
+
+        <div class="card mb-4" id="bankrollManagementCard"> 
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 text-center">Gerenciar Bancas</h2>
+            <div class="md:flex md:gap-6 mt-4">
+                <div class="md:w-1/2">
+                    <div class="flex flex-col md:flex-row gap-4 items-end mb-4">
+                        <div class="flex-grow">
+                            <label for="newBankrollName" class="block text-sm font-medium text-gray-700 mb-1">Nome da Nova Banca:</label>
+                            <input type="text" id="newBankrollName" class="input-field" placeholder="Ex: Banca Principal, Estratégia X">
+                        </div>
+                        <button type="button" id="addBankrollButton" class="btn-primary whitespace-nowrap">Adicionar Nova Banca</button>
+                    </div>
+                    <div id="bankrollTabsContainer" class="mt-4 border-b border-gray-200 flex flex-wrap -mb-px">
+                        </div>
+                </div>
+                <div id="activeBankrollDetails" class="md:w-1/2 mt-6 md:mt-0 hidden"> 
+                     <h3 class="text-lg font-semibold text-gray-600 mb-3 text-center">Detalhes da Banca Ativa</h3>
+                    <div class="space-y-4 p-4 border border-gray-200 rounded-md bg-slate-50">
+                        <div>
+                            <p class="text-base font-medium text-gray-700 mb-1">Valor Atual da Banca:</p>
+                            <p id="currentBankrollDisplay" class="text-xl font-bold profit">R$ 0,00</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <div>
+                                <label for="bankrollInput" class="block text-sm font-medium text-gray-700 mb-1">Definir/Atualizar Saldo (R$):</label>
+                                <input type="number" id="bankrollInput" step="0.01" class="input-field" placeholder="Ex: 1000.00">
+                            </div>
+                            <button type="button" id="updateBankrollButton" class="btn-primary w-full">Atualizar Saldo Manualmente</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                            <button type="button" id="openDepositModalButton" class="btn-success w-full">Realizar Depósito</button>
+                            <button type="button" id="openWithdrawalModalButton" class="btn-warning w-full">Realizar Saque</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mainContentArea">
+            <div class="card mb-6" id="bankrollChartCard">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">Evolução da Banca</h2>
+                <div class="relative h-80">
+                    <canvas id="bankrollChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card mb-6" id="overallSummaryCard">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">Resumo Geral da Banca Ativa</h2>
+                <div id="overallSummary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div class="summary-card">
+                        <h3 class="text-base font-semibold mb-1">Lucro/Prejuízo Total</h3>
+                        <p id="totalProfitLoss" class="text-sm profit">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3 class="text-base font-semibold mb-1">ROI Total</h3>
+                        <p id="totalROI" class="text-sm profit">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3 class="text-base font-semibold mb-1">Taxa de Vitórias</h3>
+                        <p id="totalWinRate" class="text-sm profit">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3 class="text-base font-semibold mb-1">Total de Apostas</h3>
+                        <p id="totalBetsCount" class="text-sm text-gray-700">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-6" id="detailedSummariesCard">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">Resumos Detalhados da Banca Ativa</h2>
+                <div id="detailedSummaries">
+                    <div class="accordion-item">
+                        <div class="accordion-header" data-target="dailyAccordionContent">
+                            <h3 class="text-lg font-semibold text-gray-700">Resumo Diário</h3>
+                            <span class="accordion-arrow text-gray-600 text-xl font-bold">▶</span>
+                        </div>
+                        <div id="dailyAccordionContent" class="accordion-content">
+                            <div id="dailySummaryCards" class="w-full flex flex-row flex-wrap gap-2 items-start content-start">
+                                <p class="text-gray-500 col-span-full">Nenhum dado diário disponível.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" data-target="weeklyAccordionContent">
+                            <h3 class="text-lg font-semibold text-gray-700">Resumo Semanal</h3>
+                             <span class="accordion-arrow text-gray-600 text-xl font-bold">▶</span>
+                        </div>
+                        <div id="weeklyAccordionContent" class="accordion-content">
+                            <div id="weeklySummaryCards" class="w-full flex flex-row flex-wrap gap-2 items-start content-start">
+                                <p class="text-gray-500 col-span-full">Nenhum dado semanal disponível.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" data-target="monthlyAccordionContent">
+                            <h3 class="text-lg font-semibold text-gray-700">Resumo Mensal</h3>
+                             <span class="accordion-arrow text-gray-600 text-xl font-bold">▶</span>
+                        </div>
+                        <div id="monthlyAccordionContent" class="accordion-content">
+                            <div id="monthlySummaryCards" class="w-full flex flex-row flex-wrap gap-2 items-start content-start">
+                                 <p class="text-gray-500 col-span-full">Nenhum dado mensal disponível.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-6" id="registerBetCard">
+                <div class="relative mb-4">
+                    <h2 class="text-xl font-semibold text-gray-700 text-center">Registrar Nova Aposta/Operação</h2>
+                    <button type="button" id="toggleCombinedBetModeButton" class="btn-secondary text-sm absolute top-0 right-0">Criar Aposta Combinada</button>
+                </div>
+                <p id="combinedBetStatus" class="text-sm text-green-600 mb-3 hidden">Modo de Aposta Combinada Ativado.</p>
+                
+                <form id="betForm">
+                    <div id="mainBetFields" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> <div>
+                            <label for="betDate" class="block text-sm font-medium text-gray-700 mb-1">Data da Aposta/Operação:</label>
+                            <input type="date" id="betDate" class="input-field" required>
+                        </div>
+                        <div>
+                            <label for="sportCategory" class="block text-sm font-medium text-gray-700 mb-1">Esporte/Categoria:</label>
+                            <select id="sportCategory" class="select-field" required>
+                                <option value="">Selecione a Modalidade</option>
+                                <option value="Atletismo">🏃 Atletismo</option>
+                                <option value="Basquete">🏀 Basquete</option>
+                                <option value="Beisebol">⚾ Beisebol</option>
+                                <option value="Boxe">🥊 Boxe</option>
+                                <option value="Cassino">🎰 Cassino</option>
+                                <option value="Ciclismo">🚴 Ciclismo</option>
+                                <option value="eSports">🎮 eSports</option>
+                                <option value="Fórmula 1">🏎️ Fórmula 1</option>
+                                <option value="Futebol">⚽ Futebol</option>
+                                <option value="Futebol Americano">🏈 Futebol Americano</option>
+                                <option value="Futsal">🥅 Futsal</option>
+                                <option value="Golfe">⛳ Golfe</option>
+                                <option value="Handebol">🤾 Handebol</option>
+                                <option value="Hóquei no Gelo">🏒 Hóquei no Gelo</option>
+                                <option value="MMA">🥋 MMA</option>
+                                <option value="Natação">🏊 Natação</option>
+                                <option value="Tênis">🎾 Tênis</option>
+                                <option value="Vôlei">🏐 Vôlei</option>
+                                <option value="N/A">❓ Outra / N/A</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="betNature" class="block text-sm font-medium text-gray-700 mb-1">Natureza da Aposta:</label>
+                            <select id="betNature" class="select-field" required>
+                                <option value="Normal">Normal</option>
+                                <option value="Promocao">Promoção</option>
+                                <option value="Surebet">Surebet</option>
+                                <option value="Combined">Combinada (Outra)</option>
+                                <option value="Cashback">Cashback</option>
+                                <option value="Freebet">Freebet</option> 
+                                <option value="Super Odd">Super Odd</option>
+                                <option value="Giros gratis">Giros grátis</option> 
+                                <option value="Duplo Green">Duplo Green</option> 
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                        <div id="mainGameEventField">
+                            <label for="gameEvent" class="block text-sm font-medium text-gray-700 mb-1">Jogo/Evento:</label>
+                            <input type="text" id="gameEvent" name="gameEvent" class="input-field" placeholder="Ex: Flamengo vs Vasco">
+                        </div>
+                    </div>
+
+                    <div id="leg1Wrapper" class="mt-4"> 
+                        <h3 id="leg1Title" class="text-md font-semibold mb-2 text-gray-600 hidden">Operação 1</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 leg-entry p-0 border-0 bg-transparent"> 
+                            <div>
+                                <label for="platform" class="block text-sm font-medium text-gray-700 mb-1">Plataforma:</label>
+                                <select id="platform" name="platform" class="select-field platform-select" required>
+                                    <option value="">Selecione a Plataforma</option>
+                                    </select>
+                            </div>
+                            <div>
+                                <label for="betType" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Aposta:</label>
+                                <select id="betType" name="betType" class="select-field" required>
+                                    <option value="">Selecione o Tipo</option>
+                                    <option value="back">A Favor (Back)</option>
+                                    <option value="lay">Contra (Lay)</option>
+                                </select>
+                            </div>
+                            <div id="backBetFields"> 
+                                <label for="betAmount" id="betAmountLabel" class="block text-sm font-medium text-gray-700 mb-1">Valor Apostado (R$):</label>
+                                <input type="number" id="betAmount" name="stake" step="0.01" class="input-field">
+                            </div>
+                            <div id="layBetFields" class="hidden grid grid-cols-2 gap-4">
+                                 <div>
+                                    <label for="layStake" id="layStakeLabel" class="block text-sm font-medium text-gray-700 mb-1">Aposta Lay (R$):</label>
+                                    <input type="number" id="layStake" name="stake" step="0.01" class="input-field">
+                                </div>
+                                 <div>
+                                    <label for="layLiability" id="layLiabilityLabel" class="block text-sm font-medium text-gray-700 mb-1">Responsabilidade (R$):</label>
+                                    <input type="number" id="layLiability" name="liability" class="input-field" readonly>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="odd" id="oddLabel" class="block text-sm font-medium text-gray-700 mb-1">Odd:</label>
+                                <input type="number" id="odd" name="odd" step="0.01" class="input-field">
+                            </div>
+                            <div id="commissionField" class="hidden">
+                                <label for="commission" class="block text-sm font-medium text-gray-700 mb-1">Comissão (%):</label>
+                                <input type="number" id="commission" name="commission" step="0.01" class="input-field" value="0">
+                            </div>
+                             <div id="outcomeContainer">
+                                <label for="outcome" class="block text-sm font-medium text-gray-700 mb-1">Resultado:</label>
+                                <select id="outcome" name="outcome" class="select-field" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="pending">Pendente</option> 
+                                    <option value="win">Vitória</option>
+                                    <option value="loss">Derrota</option>
+                                    <option value="push">Empate (Push)</option>
+                                    <option value="void">Anulada (Void)</option>
+                                </select>
+                            </div>
+                             <div class="md:col-span-1">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="isFreebet" name="isFreebet" class="w-4 h-4 text-green-500 bg-gray-100 border-gray-300 rounded focus:ring-green-400">
+                                    <label for="isFreebet" class="text-sm font-medium text-gray-700">É uma Freebet?</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="legsContainer" class="md:col-span-3 mt-4">
+                        </div>
+
+                    <div class="md:col-span-3 mt-3 flex justify-start">
+                        <button type="button" id="addLegButton" class="btn-primary text-sm hidden">Adicionar Outra Operação</button>
+                    </div>
+                    
+                    <div class="md:col-span-3 flex justify-center mt-6 space-x-2">
+                        <button type="submit" id="submitButton" class="btn-primary">Adicionar Aposta</button>
+                        <button type="button" id="cancelEditButton" class="btn-secondary hidden">Cancelar Edição</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card" id="betHistoryCard">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">Histórico de Apostas da Banca Ativa</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4"> 
+                    <div>
+                        <label for="filterDate" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Dia:</label>
+                        <input type="date" id="filterDate" class="input-field">
+                    </div>
+                    <div>
+                        <label for="filterWeek" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Semana:</label>
+                        <select id="filterWeek" class="select-field">
+                            <option value="">Todas as Semanas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterMonth" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Mês:</label>
+                        <select id="filterMonth" class="select-field">
+                            <option value="">Todos os Meses</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterYear" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Ano:</label>
+                        <select id="filterYear" class="select-field">
+                            <option value="">Todos os Anos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterPlatform" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Plataforma:</label>
+                        <select id="filterPlatform" class="select-field">
+                            <option value="">Todas as Plataformas</option>
+                             </select>
+                    </div>
+                    <div>
+                        <label for="filterBetNature" class="block text-sm font-medium text-gray-700 mb-1">Natureza da Aposta:</label>
+                        <select id="filterBetNature" class="select-field"> 
+                            <option value="">Todas as Naturezas</option>
+                         </select>
+                    </div>
+                     <div>
+                        <label for="filterGameEvent" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Jogo/Evento:</label>
+                        <input type="text" id="filterGameEvent" class="input-field" placeholder="Digite para filtrar...">
+                    </div>
+                </div>
+                
+                <div class="card mb-4 hidden" id="filteredSummaryCard">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700 text-center">Resumo dos Filtros Aplicados</h3>
+                    <div id="filteredSummary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                        <div class="summary-card-filtered">
+                            <h4 class="text-base font-semibold mb-1">Lucro/Prejuízo (Filtro)</h4>
+                            <p id="filteredTotalProfitLoss" class="text-sm profit">-</p>
+                        </div>
+                        <div class="summary-card-filtered">
+                            <h4 class="text-base font-semibold mb-1">ROI (Filtro)</h4>
+                            <p id="filteredTotalROI" class="text-sm profit">-</p>
+                        </div>
+                        <div class="summary-card-filtered">
+                            <h4 class="text-base font-semibold mb-1">Taxa de Vitórias (Filtro)</h4>
+                            <p id="filteredTotalWinRate" class="text-sm profit">-</p>
+                        </div>
+                        <div class="summary-card-filtered">
+                            <h4 class="text-base font-semibold mb-1">Total de Apostas (Filtro)</h4>
+                            <p id="filteredTotalBetsCount" class="text-sm text-gray-700">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="mb-4">
+                    <button type="button" id="copySelectedBetsButton" class="btn-primary text-sm" disabled>Copiar Selecionadas Para...</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell"><input type="checkbox" id="selectAllBetsCheckbox" title="Selecionar Todas Visíveis"></th>
+                                <th data-sort="date">Data</th>
+                                <th data-sort="gameEvent">Jogo/Evento</th>
+                                <th data-sort="stake">Stake (R$)</th>
+                                <th data-sort="odd">Odd</th>
+                                <th data-sort="liability">Responsabilidade (R$)</th>
+                                <th data-sort="outcome">Resultado</th>
+                                <th data-sort="winLossAmount">Ganho/Perdido (R$)</th>
+                                <th data-sort="profitLoss">Lucro/Prejuízo (R$)</th>
+                                <th data-sort="platform">Plataforma</th>
+                                <th data-sort="isFreebet" class="freebet-column">Freebet</th> <th data-sort="betNature">Natureza</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="betList">
+                            <tr><td colspan="13" class="text-center text-gray-500 py-2">Nenhuma aposta registrada ainda.</td></tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div> 
+    </div>
+
+    <div id="depositModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Realizar Depósito</h3>
+            <form id="depositForm" class="space-y-4 text-left">
+                <div>
+                    <label for="depositAmount" class="block text-sm font-medium text-gray-700 mb-1">Valor do Depósito (R$):</label>
+                    <input type="number" id="depositAmount" step="0.01" class="input-field" placeholder="Ex: 100.00" required>
+                </div>
+                <div>
+                    <label for="depositDate" class="block text-sm font-medium text-gray-700 mb-1">Data do Depósito:</label>
+                    <input type="date" id="depositDate" class="input-field" required>
+                </div>
+                <div>
+                    <label for="depositDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição (Opcional):</label>
+                    <input type="text" id="depositDescription" class="input-field" placeholder="Ex: Bônus da casa, aporte inicial">
+                </div>
+            </form>
+            <div class="modal-buttons mt-6">
+                <button id="cancelDepositBtn" class="modal-button cancel">Cancelar</button>
+                <button id="confirmDepositBtn" class="modal-button confirm">Confirmar Depósito</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdrawalModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Realizar Saque</h3>
+            <form id="withdrawalForm" class="space-y-4 text-left">
+                <div>
+                    <label for="withdrawalAmount" class="block text-sm font-medium text-gray-700 mb-1">Valor do Saque (R$):</label>
+                    <input type="number" id="withdrawalAmount" step="0.01" class="input-field" placeholder="Ex: 50.00" required>
+                </div>
+                <div>
+                    <label for="withdrawalDate" class="block text-sm font-medium text-gray-700 mb-1">Data do Saque:</label>
+                    <input type="date" id="withdrawalDate" class="input-field" required>
+                </div>
+                <div>
+                    <label for="withdrawalDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição (Opcional):</label>
+                    <input type="text" id="withdrawalDescription" class="input-field" placeholder="Ex: Retirada para despesas">
+                </div>
+            </form>
+            <div class="modal-buttons mt-6">
+                <button id="cancelWithdrawalBtn" class="modal-button cancel">Cancelar</button>
+                <button id="confirmWithdrawalBtn" class="modal-button confirm confirm-danger">Confirmar Saque</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // --- INÍCIO: Variáveis Globais e de Estado para Multi-Banca ---
+        let bankrolls = []; 
+        let activeBankrollId = null;
+        // --- FIM: Variáveis Globais e de Estado para Multi-Banca ---
+
+        let editingBetId = null; 
+        let bankrollChartInstance = null; 
+        let isCombinedBetMode = false; 
+        let legCounter = 1; 
+
+        // Referências dos elementos HTML
+        let betForm, betDateInput, betTypeSelect, backBetFields, layBetFields, betAmountInput, oddInput, layStakeInput, layLiabilityInput, outcomeInput, platformSelect, commissionField, commissionInput, sportCategorySelect, betNatureSelect, isFreebetInput, submitButton, cancelEditButton, betList, gameEventInput; 
+        let currentBankrollDisplay, bankrollInput, updateBankrollButton, bankrollChartCanvas;
+        let dailySummaryCardsDiv, weeklySummaryCardsDiv, monthlySummaryCardsDiv;
+        let filterDateInput, filterWeekSelect, filterMonthSelect, filterYearSelect, filterPlatformSelect, filterBetNatureSelect, filterGameEventInput; 
+        let tableHeaders;
+        let toggleCombinedBetModeButton, combinedBetStatus, legsContainer, addLegButton, leg1Title;
+        let addBankrollButton, newBankrollNameInput, bankrollTabsContainer, activeBankrollDetailsDiv;
+        let mainContentArea;
+        let selectAllBetsCheckbox, copySelectedBetsButton;
+        let mainGameEventField; 
+        let filteredSummaryCardDiv, filteredTotalProfitLossEl, filteredTotalROIEl, filteredTotalWinRateEl, filteredTotalBetsCountEl; 
+        let themeToggleBtn;
+
+
+        // Elementos dos Modais de Saque/Depósito
+        let depositModal, openDepositModalButton, cancelDepositBtn, confirmDepositBtn, depositAmountInput, depositDateInput, depositDescriptionInput;
+        let withdrawalModal, openWithdrawalModalButton, cancelWithdrawalBtn, confirmWithdrawalBtn, withdrawalAmountInput, withdrawalDateInput, withdrawalDescriptionInput;
+
+        const sportEmojis = {
+            'Futebol': '⚽',
+            'Basquete': '🏀',
+            'Tênis': '🎾',
+            'Vôlei': '🏐',
+            'Futebol Americano': '🏈',
+            'Atletismo': '🏃',
+            'Beisebol': '⚾',
+            'Boxe': '🥊',
+            'Cassino': '🎰',
+            'Ciclismo': '🚴',
+            'eSports': '🎮',
+            'Fórmula 1': '🏎️',
+            'Futsal': '🥅',
+            'Golfe': '⛳',
+            'Handebol': '🤾',
+            'Hóquei no Gelo': '�',
+            'MMA': '🥋',
+            'Natação': '🏊',
+            'N/A': '❓'
+        };
+
+        const allBetNatures = [ 
+            { value: "Normal", text: "Normal" },
+            { value: "Promocao", text: "Promoção" },
+            { value: "Surebet", text: "Surebet" },
+            { value: "Combined", text: "Combinada (Outra)" },
+            { value: "Cashback", text: "Cashback" },
+            { value: "Freebet", text: "Freebet" },
+            { value: "Super Odd", text: "Super Odd" },
+            { value: "Giros gratis", text: "Giros grátis" },
+            { value: "Duplo Green", text: "Duplo Green" },
+            { value: "N/A", text: "N/A" }
+        ];
+
+        const platformNames = [ 
+            "1 PRA 1", "4PLAY", "4WIN", "6R", "6Z", "7GAMES", "7K", "9D", "9F", "A247", "AFUN", "AI", "ALFA.BET", "APOSTA1", "APOSTA BET", "APOSTA GANHA", 
+            "APOSTAMAX", "APOSTAR", "APOSTATUDO", "APOSTOU", "ARENAPLUS", "B1 BET", "B2XBET", "BACANAPLAY", "BANDBET", "BATEU BET", "BET.APP", "BET.BET", 
+            "BET365", "BET4", "BET AKI", "BETANO", "BETBOO", "BETBOOM", "BETCOPA", "BET DA SORTE", "BETESPECIAL", "BETESPORTE", "BETFAIR", "BETFALCONS", 
+            "BETFAST", "BETFUSION", "BET GORILLAS", "BET BUFFALOS", "BETMGM", "BETNACIONAL", "BETOU", "BETPARK", "BETSSON", "BETSPEED", "Betsul", "BETVIP", 
+            "BETWARRIOR", "BETÃO", "BETBRA", "BIG", "BLAZE", "BOLSA DE APOSTA", "BR4BET", "BRASILBET", "BRASIL DA SORTE", "BRAVO", "BRAZINO777", "BRBET", 
+            "BRXBET", "BULLSBET", "CASA DE APOSTAS", "CASSINO", "CBESPORTES", "CBET", "DONALDBET", "DONOSDABOLA", "Elisa.bet", "ESPORTE 365", 
+            "ESPORTES DA SORTE", "ESPORTIVA BET", "ESPORTIVAVIP", "ESTRELABET", "F12.BET", "FANBIT", "FAZ O BET", "FAZ1BET", "FLABET", "FOGO777", "FULLTBET", 
+            "FYBET", "GALERA.BET", "GERALBET", "GINGABET", "GOL DE BET", "H2 BET", "HANZBET", "HILGARDO", "HILGARDO GAMING", "HIPERBET", "IJOGO", "JOGÃO", 
+            "JOGO DE OURO", "JOGO ONLINE", "JOGOS", "JONBET", "KING PANDA", "KTO", "LANCE DE SORTE", "LÍDERBET", "LOTTOLAND", "LOTOGREEN", "LUCK.BET", "LUVA.BET",
+            "MAGICJACKPOT", "MATCHBOOK", "MAXIMABET", "MCGAMES", "MEGAPOSTA", "MERIDIANBET", "MGM", "MMA", "MONTECARLOS", "MONTECARLOSBET", "MR. JACK BET", 
+            "MULTIBET", "NETPIX", "NOVIBET", "OLEYBET", "ONABET", "P9", "PAGOL", "PAPIGAMES", "PINNACLE", "PITACO", "PIXBET", "PLAYUZU", "Playbonds", "QGBET", 
+            "R7", "RdP", "REALS", "REI DO PITACO", "RICOBET", "RIVALO", "SEGURO BET", "SEUBET", "SORTE ONLINE", "SORTENABET", "SPIN", "SPORTINGBET", "SPORTYBET", 
+            "STAKE", "STARTBET", "SUPER", "SUPERBET", "SUPREMABET", "TIVOBET", "TRADICIONAL", "UPBETBR", "UX", "VBET", "VERA", "VERTBET", "VERSUSBET", "VIVARO", 
+            "VIVASORTE", "VS - VERSUS", "WJCASINO", "XPBET", "N/A"
+        ];
+
+        const platformDisplayMap = platformNames.reduce((map, name) => {
+            const value = name.toLowerCase().replace(/\s+/g, '-').replace(/\./g, '');
+            map[value] = toDisplayCase(name);
+            return map;
+        }, {});
+
+
+        const exchangePlatforms = ['betfair', 'bolsa-de-aposta', 'fulltbet', 'betbra']; 
+        let currentSortColumn = 'date';
+        let currentSortDirection = 'desc';
+
+        // --- INÍCIO: Funções Utilitárias ---
+        const formatCurrency = (value) => {
+            if (isNaN(value) || value === null) return 'R$ 0,00';
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
+
+        const formatPercentage = (value) => {
+            if (isNaN(value) || value === null) return '0.00%';
+            return value.toFixed(2) + '%';
+        };
+
+        const showCustomModal = (title, message, buttonsConfig = [{text: 'OK', class: 'ok', action: null}]) => {
+            const existingModal = document.querySelector('.modal-overlay-custom');
+            if (existingModal) existingModal.remove();
+
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay modal-overlay-custom open'; 
+
+            let buttonsHTML = '';
+            buttonsConfig.forEach((btn, index) => {
+                buttonsHTML += `<button id="customModalBtn_${index}" class="modal-button ${btn.class}">${btn.text}</button>`;
+            });
+            
+            modalOverlay.innerHTML = `
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">${title}</h3>
+                    <div class="mb-6 text-gray-700 text-left" style="white-space: pre-wrap; word-wrap: break-word;">${message}</div>
+                    <div class="modal-buttons">
+                        ${buttonsHTML}
+                    </div>
+                </div>`;
+            document.body.appendChild(modalOverlay);
+
+            buttonsConfig.forEach((btn, index) => {
+                document.getElementById(`customModalBtn_${index}`).addEventListener('click', () => {
+                    modalOverlay.remove();
+                    if (btn.action) btn.action();
+                });
+            });
+        };
+
+
+        const getWeekNumber = (d) => {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
+        };
+        // --- FIM: Funções Utilitárias ---
+
+        // --- INÍCIO: Funções de Gerenciamento de Banca ---
+        function getActiveBankroll() {
+            if (!activeBankrollId) return null;
+            return bankrolls.find(b => b.id === activeBankrollId);
+        }
+
+        function saveAllData() {
+            try {
+                const appData = {
+                    bankrolls: bankrolls,
+                    activeBankrollId: activeBankrollId,
+                    theme: document.body.classList.contains('dark') ? 'dark' : 'light' 
+                };
+                localStorage.setItem('greenProAppData', JSON.stringify(appData));
+            } catch (e) {
+                console.error("Erro ao salvar no localStorage:", e);
+                showCustomModal('Erro ao Salvar', 'Não foi possível salvar seus dados no navegador.');
+            }
+        }
+
+        function loadAllData() {
+            try {
+                const storedAppData = localStorage.getItem('greenProAppData');
+                if (storedAppData) {
+                    const appData = JSON.parse(storedAppData);
+                    bankrolls = (appData.bankrolls || []).map(b => ({ 
+                        ...b,
+                        id: b.id || ('b_' + (b.createdAt || Date.now()) + Math.random().toString(36).substr(2,5)),
+                        bets: (b.bets || []).map(bet => ({
+                            ...bet,
+                            stake: parseFloat(bet.stake) || 0,
+                            totalStake: parseFloat(bet.totalStake) || 0,
+                            odd: parseFloat(bet.odd) || 1,
+                            liability: parseFloat(bet.liability) || 0,
+                            totalLiability: parseFloat(bet.totalLiability) || 0,
+                            winLossAmount: parseFloat(bet.winLossAmount) || 0,
+                            profitLoss: parseFloat(bet.profitLoss) || 0,
+                            commission: parseFloat(bet.commission) || 0,
+                            timestamp: bet.timestamp || new Date(bet.date + "T00:00:00Z").getTime() + Math.floor(Math.random() * 1000),
+                            gameEvent: bet.gameEvent || '' 
+                        })),
+                        bankrollHistory: (b.bankrollHistory || []).map(entry => ({ 
+                            ...entry,
+                            value: parseFloat(entry.value) || 0,
+                            timestamp: entry.timestamp || new Date(entry.date + "T00:00:00Z").getTime() + Math.floor(Math.random() * 1000) 
+                        })).sort((e1,e2) => (e1.timestamp || 0) - (e2.timestamp || 0)),
+                        currentBalance: typeof b.currentBalance === 'number' ? b.currentBalance : 0,
+                        createdAt: b.createdAt || Date.now()
+                    })).sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+                    
+                    activeBankrollId = appData.activeBankrollId || null;
+
+                    if (activeBankrollId && !bankrolls.some(b => b.id === activeBankrollId)) {
+                        activeBankrollId = bankrolls.length > 0 ? bankrolls[0].id : null;
+                    } else if (!activeBankrollId && bankrolls.length > 0) {
+                         activeBankrollId = bankrolls[0].id; 
+                    }
+                    const savedTheme = appData.theme || 'light';
+                    setTheme(savedTheme);
+
+                } else {
+                    bankrolls = [];
+                    activeBankrollId = null;
+                    setTheme('light'); 
+                }
+            } catch (e) {
+                console.error("Erro ao carregar dados do localStorage:", e);
+                showCustomModal('Erro de Carregamento', 'Houve um problema ao carregar seus dados. Eles podem ter sido redefinidos.');
+                bankrolls = [];
+                activeBankrollId = null;
+                localStorage.removeItem('greenProAppData');
+                setTheme('light');
+            }
+        }
+        
+        function renderBankrollTabs() {
+            if (!bankrollTabsContainer) return;
+            bankrollTabsContainer.innerHTML = ''; 
+
+            if (bankrolls.length === 0) {
+                bankrollTabsContainer.innerHTML = '<p class="text-sm text-gray-500 py-2 px-1">Nenhuma banca criada. Adicione uma acima para começar.</p>';
+                if(activeBankrollDetailsDiv) activeBankrollDetailsDiv.classList.add('hidden'); 
+                return;
+            }
+            
+            if(activeBankrollDetailsDiv && getActiveBankroll()) {
+                activeBankrollDetailsDiv.classList.remove('hidden');
+            } else if (activeBankrollDetailsDiv) {
+                 activeBankrollDetailsDiv.classList.add('hidden');
+            }
+
+
+            bankrolls.forEach(bankroll => {
+                const tabButton = document.createElement('button');
+                tabButton.className = 'bankroll-tab'; 
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = bankroll.name;
+                tabButton.appendChild(nameSpan);
+
+                tabButton.dataset.bankrollId = bankroll.id;
+                if (bankroll.id === activeBankrollId) {
+                    tabButton.setAttribute('data-active', 'true');
+                }
+
+                const editBtn = document.createElement('span');
+                editBtn.className = 'bankroll-tab-icon edit text-blue-500';
+                editBtn.innerHTML = '✏️';
+                editBtn.title = `Editar nome da banca ${bankroll.name}`;
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    handleEditBankrollName(bankroll.id, bankroll.name);
+                };
+                tabButton.appendChild(editBtn);
+
+                const deleteBtn = document.createElement('span');
+                deleteBtn.className = 'bankroll-tab-icon delete text-red-500';
+                deleteBtn.innerHTML = '&times;'; 
+                deleteBtn.title = `Excluir banca ${bankroll.name}`;
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation(); 
+                    handleDeleteBankroll(bankroll.id, bankroll.name);
+                };
+                tabButton.appendChild(deleteBtn);
+
+
+                tabButton.addEventListener('click', () => {
+                    if (activeBankrollId === bankroll.id) return; 
+                    setActiveBankroll(bankroll.id);
+                    saveAllData(); 
+                    renderUIForActiveBankrollContent();
+                });
+                bankrollTabsContainer.appendChild(tabButton);
+            });
+        }
+        
+        function handleEditBankrollName(bankrollId, currentName) {
+            let modalMessage = `<p class="mb-2 text-left">Editar nome da banca:</p>
+                                 <input type="text" id="editBankrollNameInput" class="input-field" value="${currentName}">`;
+            
+            showCustomModal( 'Editar Nome da Banca', modalMessage,
+                [
+                    { text: 'Cancelar', class: 'cancel', action: null },
+                    { text: 'Salvar Alterações', class: 'confirm', action: () => {
+                        const newNameInput = document.getElementById('editBankrollNameInput');
+                        const newName = newNameInput.value.trim();
+                        processBankrollNameEdit(bankrollId, newName, currentName);
+                    }}
+                ]
+            );
+        }
+
+        function processBankrollNameEdit(bankrollId, newName, originalName) {
+            if (!newName) {
+                showCustomModal('Erro', 'O nome da banca não pode estar vazio.');
+                return;
+            }
+            if (newName !== originalName && bankrolls.some(b => b.name === newName && b.id !== bankrollId)) {
+                showCustomModal('Erro', 'Já existe outra banca com este nome.');
+                return;
+            }
+
+            const bankrollToEdit = bankrolls.find(b => b.id === bankrollId);
+            if (bankrollToEdit) {
+                bankrollToEdit.name = newName;
+                saveAllData();
+                renderBankrollTabs(); 
+                showCustomModal('Sucesso', `Nome da banca atualizado para "${newName}".`);
+            } else {
+                showCustomModal('Erro', 'Banca não encontrada para edição.');
+            }
+        }
+
+
+        function handleDeleteBankroll(bankrollIdToDelete, bankrollName) {
+            showCustomModal(
+                'Confirmar Exclusão de Banca',
+                `Tem certeza que deseja excluir a banca "<strong>${bankrollName}</strong>"? Todas as apostas e o histórico desta banca serão perdidos permanentemente.`,
+                [
+                    { text: 'Cancelar', class: 'cancel', action: null },
+                    { text: 'Excluir Banca', class: 'confirm-danger', action: () => {
+                        bankrolls = bankrolls.filter(b => b.id !== bankrollIdToDelete);
+                        if (activeBankrollId === bankrollIdToDelete) {
+                            activeBankrollId = bankrolls.length > 0 ? bankrolls[0].id : null;
+                             if (!activeBankrollId && activeBankrollDetailsDiv) { 
+                                 activeBankrollDetailsDiv.classList.add('hidden');
+                            }
+                        }
+                        saveAllData();
+                        renderUIForActiveBankroll(); 
+                        showCustomModal('Sucesso', `Banca "${bankrollName}" excluída.`);
+                    }}
+                ]
+            );
+        }
+
+
+        function setActiveBankroll(bankrollId) {
+            activeBankrollId = bankrollId;
+            document.querySelectorAll('.bankroll-tab').forEach(btn => {
+                btn.setAttribute('data-active', btn.dataset.bankrollId === activeBankrollId ? 'true' : 'false');
+            });
+            if (activeBankrollId && activeBankrollDetailsDiv) {
+                activeBankrollDetailsDiv.classList.remove('hidden');
+            } else if (activeBankrollDetailsDiv) {
+                activeBankrollDetailsDiv.classList.add('hidden');
+            }
+        }
+        
+        function handleAddBankroll() {
+            const name = newBankrollNameInput.value.trim();
+            if (!name) {
+                showCustomModal('Erro', 'Por favor, insira um nome para a nova banca.');
+                return;
+            }
+            if (bankrolls.some(b => b.name === name)) {
+                showCustomModal('Erro', 'Já existe uma banca com este nome.');
+                return;
+            }
+
+            const newBankroll = {
+                id: 'b_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                name: name,
+                bets: [],
+                bankrollHistory: [{ date: new Date().toISOString().split('T')[0], value: 0, timestamp: Date.now(), type: 'manual', eventId: 'initial_saldo', description: 'Saldo Inicial' }],
+                currentBalance: 0,
+                createdAt: Date.now()
+            };
+            bankrolls.push(newBankroll);
+            bankrolls.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0)); 
+            newBankrollNameInput.value = '';
+            
+            setActiveBankroll(newBankroll.id);
+            saveAllData();
+            renderUIForActiveBankroll(); 
+            showCustomModal('Sucesso', `Banca "${name}" criada!`);
+        }
+
+        function renderUIForActiveBankroll() {
+            renderBankrollTabs(); 
+            renderUIForActiveBankrollContent();
+        }
+        
+        function renderUIForActiveBankrollContent(){
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll) {
+                clearPageContentAndHideForms();
+                if(activeBankrollDetailsDiv) activeBankrollDetailsDiv.classList.add('hidden');
+                return;
+            }
+            if(activeBankrollDetailsDiv) activeBankrollDetailsDiv.classList.remove('hidden');
+            showFormsAndContent(); 
+            rebuildBankrollStateForActive(); 
+            populateFilterOptionsForActive(); 
+            renderAllVisualsForActive(); 
+        }
+
+        function clearPageContentAndHideForms() {
+            if(mainContentArea) mainContentArea.classList.add('hidden');
+            if(betList) betList.innerHTML = '<tr><td colspan="13" class="text-center text-gray-500 py-2">Selecione ou crie uma banca para começar.</td></tr>'; 
+            if(bankrollChartInstance) bankrollChartInstance.destroy();
+            if(currentBankrollDisplay) currentBankrollDisplay.textContent = formatCurrency(0);
+            
+            const summaryFields = ['totalProfitLoss', 'totalROI', 'totalWinRate', 'totalBetsCount'];
+            summaryFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '-';
+            });
+            if(document.getElementById('dailyAccordionContent')) document.getElementById('dailyAccordionContent').innerHTML = '<div id="dailySummaryCards" class="w-full flex flex-row flex-wrap gap-2 items-start content-start"><p class="text-gray-500 col-span-full">Nenhuma banca ativa.</p></div>';
+            if(document.getElementById('weeklyAccordionContent')) document.getElementById('weeklyAccordionContent').innerHTML = '<div id="weeklySummaryCards" class="w-full flex flex-row flex-wrap gap-2 items-start content-start"><p class="text-gray-500 col-span-full">Nenhuma banca ativa.</p></div>';
+            if(document.getElementById('monthlyAccordionContent')) document.getElementById('monthlyAccordionContent').innerHTML = '<div id="monthlySummaryCards" class="w-full flex flex-row flex-wrap gap-2 items-start content-start"><p class="text-gray-500 col-span-full">Nenhuma banca ativa.</p></div>';
+            if(filteredSummaryCardDiv) filteredSummaryCardDiv.classList.add('hidden'); 
+        }
+
+        function showFormsAndContent() {
+            if(mainContentArea) mainContentArea.classList.remove('hidden');
+        }
+        // --- FIM: Funções de Gerenciamento de Banca ---
+
+        // --- INÍCIO: Funções Refatoradas para operar com Banca Ativa ---
+        function sortBankrollHistoryForActive() {
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll || !Array.isArray(activeBankroll.bankrollHistory)) { 
+                if (activeBankroll) activeBankroll.bankrollHistory = []; 
+                return;
+            }
+            activeBankroll.bankrollHistory.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        }
+
+        function rebuildBankrollStateForActive() {
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll) return;
+            if (!Array.isArray(activeBankroll.bankrollHistory)) activeBankroll.bankrollHistory = []; 
+
+            let runningBalance = 0; 
+            const tempBankrollHistory = [];
+            
+            let initialEntry = activeBankroll.bankrollHistory.find(entry => entry.type === 'manual' && entry.eventId === 'initial_saldo');
+            if (!initialEntry) {
+                 initialEntry = activeBankroll.bankrollHistory.filter(e => e.type === 'manual').sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0))[0];
+            }
+
+            if (initialEntry) { 
+                runningBalance = initialEntry.value; 
+                tempBankrollHistory.push({...initialEntry}); 
+            }
+            
+            const allEvents = [];
+            activeBankroll.bets.forEach(bet => {
+                if (bet.operationType === 'combined') { 
+                    if (bet.outcome !== 'pending') allEvents.push({ ...bet, eventType: 'combined_bet_resolution', eventTimestamp: bet.timestamp, profitLossContribution: bet.profitLoss, description: bet.gameEvent || `Aposta Combinada #${bet.id.slice(-5)}` }); 
+                    else allEvents.push({ ...bet, eventType: 'combined_bet_pending', eventTimestamp: bet.timestamp, description: bet.gameEvent || `Aposta Combinada #${bet.id.slice(-5)} (Pendente)` }); 
+                } else {
+                     allEvents.push({ ...bet, eventType: 'bet', eventTimestamp: bet.timestamp, description: bet.gameEvent || `Aposta #${bet.id.slice(-5)} (${bet.sportCategory})` });
+                }
+            });
+
+            activeBankroll.bankrollHistory.forEach(entry => {
+                if (entry.type === 'manual' && (!initialEntry || entry.timestamp !== initialEntry.timestamp)) { 
+                    allEvents.push({ ...entry, eventType: entry.type, eventTimestamp: entry.timestamp }); 
+                } else if ((entry.type === 'deposit' || entry.type === 'withdrawal')) { 
+                     allEvents.push({ ...entry, eventType: entry.type, eventTimestamp: entry.timestamp });
+                }
+            });
+
+            allEvents.sort((a, b) => (a.eventTimestamp || 0) - (b.eventTimestamp || 0));
+            
+            if (!initialEntry) runningBalance = 0;
+
+            allEvents.forEach(event => {
+                if (initialEntry && tempBankrollHistory.length > 0 && event.eventTimestamp < tempBankrollHistory[0].timestamp && !['manual_update', 'deposit', 'withdrawal', 'manual'].includes(event.eventType) ) return; 
+                
+                if (event.eventType === 'bet') { 
+                    if (event.outcome !== 'pending') runningBalance += event.profitLoss; 
+                    tempBankrollHistory.push({ date: event.date, value: runningBalance, timestamp: event.eventTimestamp, type: 'bet', eventId: event.id, description: event.description }); 
+                } else if (event.eventType === 'combined_bet_resolution') { 
+                    runningBalance += event.profitLossContribution; 
+                    tempBankrollHistory.push({ date: event.date, value: runningBalance, timestamp: event.eventTimestamp, type: 'combined_bet', eventId: event.id, description: event.description }); 
+                } else if (event.eventType === 'combined_bet_pending') {
+                    tempBankrollHistory.push({ date: event.date, value: runningBalance, timestamp: event.eventTimestamp, type: 'combined_bet_pending', eventId: event.id, description: event.description }); 
+                } else if (event.eventType === 'manual' || event.eventType === 'manual_update') { 
+                    runningBalance = event.value; 
+                    tempBankrollHistory.push({ date: event.date, value: runningBalance, timestamp: event.eventTimestamp, type: 'manual', eventId: event.eventId, description: event.description || 'Atualização Manual de Saldo' }); 
+                } else if (event.eventType === 'deposit') {
+                    runningBalance += event.transactionValue; 
+                    tempBankrollHistory.push({ date: event.date, value: runningBalance, timestamp: event.eventTimestamp, type: 'deposit', eventId: event.eventId, description: event.description || 'Depósito', transactionValue: event.transactionValue });
+                } else if (event.eventType === 'withdrawal') {
+                    runningBalance -= event.transactionValue; 
+                    tempBankrollHistory.push({ date: event.date, value: runningBalance, timestamp: event.eventTimestamp, type: 'withdrawal', eventId: event.eventId, description: event.description || 'Saque', transactionValue: event.transactionValue });
+                }
+            });
+            
+            const uniqueTimestampHistory = []; 
+            const seenTimestamps = new Set();
+            const priorityTypes = ['manual', 'deposit', 'withdrawal'];
+
+            for (let i = tempBankrollHistory.length - 1; i >= 0; i--) {
+                const entry = tempBankrollHistory[i];
+                if (!seenTimestamps.has(entry.timestamp)) { 
+                    uniqueTimestampHistory.unshift(entry); 
+                    seenTimestamps.add(entry.timestamp); 
+                } else { 
+                    const existingEntryIndex = uniqueTimestampHistory.findIndex(e => e.timestamp === entry.timestamp); 
+                    if (existingEntryIndex !== -1) {
+                        if (priorityTypes.includes(entry.type) && !priorityTypes.includes(uniqueTimestampHistory[existingEntryIndex].type)) {
+                             uniqueTimestampHistory[existingEntryIndex] = entry;
+                        } else if (priorityTypes.includes(entry.type) && priorityTypes.includes(uniqueTimestampHistory[existingEntryIndex].type)) {
+                             uniqueTimestampHistory[existingEntryIndex] = entry; 
+                        }
+                    }
+                }
+            }
+            activeBankroll.currentBalance = runningBalance; 
+            activeBankroll.bankrollHistory = uniqueTimestampHistory; 
+            sortBankrollHistoryForActive(); 
+        }
+        
+        window.updateBankrollDisplayForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            if (!currentBankrollDisplay || !activeBankroll) { if(currentBankrollDisplay) currentBankrollDisplay.textContent = formatCurrency(0); return; }
+            currentBankrollDisplay.textContent = formatCurrency(activeBankroll.currentBalance);
+            currentBankrollDisplay.className = `text-xl font-bold ${activeBankroll.currentBalance >= 0 ? 'profit' : 'loss'}`;
+        };
+
+        window.renderBankrollChartForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            if (!bankrollChartCanvas || !activeBankroll) { if(bankrollChartInstance) bankrollChartInstance.destroy(); return; }
+            if (bankrollChartInstance) bankrollChartInstance.destroy();
+            
+            Chart.defaults.font.family = "'Inter', sans-serif"; 
+
+            sortBankrollHistoryForActive(); 
+            const labels = activeBankroll.bankrollHistory.map(entry => new Date(entry.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' , timeZone: 'UTC'}));
+            const data = activeBankroll.bankrollHistory.map(entry => entry.value);
+            const ctx = bankrollChartCanvas.getContext('2d'); 
+            const gradient = ctx.createLinearGradient(0, 0, 0, bankrollChartCanvas.height); 
+            gradient.addColorStop(0, 'rgba(74, 222, 128, 0.6)'); 
+            gradient.addColorStop(1, 'rgba(74, 222, 128, 0.1)'); 
+            
+            bankrollChartInstance = new Chart(ctx, {
+                type: 'line', 
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        label: 'Valor da Banca (R$)', 
+                        data: data, 
+                        borderColor: '#22c55e', 
+                        backgroundColor: gradient, 
+                        tension: 0.4, 
+                        fill: true, 
+                        pointBackgroundColor: '#22c55e', 
+                        pointBorderColor: '#ffffff', 
+                        pointRadius: 4,
+                        pointHoverRadius: 7, 
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#16a34a', 
+                        pointHoverBorderWidth: 2,
+                        borderWidth: 2.5, 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            display: true, 
+                            position: 'top', 
+                            labels: { 
+                                color: document.body.classList.contains('dark') ? '#f3f4f6' : '#334155', 
+                                boxWidth: 12, 
+                                padding: 15,
+                                font: { size: 12 }
+                            } 
+                        }, 
+                        title: { display: false }, 
+                        tooltip: { 
+                            mode: 'index', 
+                            intersect: false, 
+                            backgroundColor: 'rgba(30, 41, 59, 0.85)', 
+                            titleColor: '#ffffff',
+                            bodyColor: '#e2e8f0',
+                            titleFont: { size: 13, weight: '600' }, 
+                            bodyFont: { size: 12 }, 
+                            padding: 10, 
+                            cornerRadius: 6, 
+                            caretPadding: 10,
+                            caretSize: 7,
+                            callbacks: { 
+                                label: function(context) { 
+                                    let label = context.dataset.label || ''; 
+                                    if (label) label += ': '; 
+                                    if (context.parsed.y !== null) label += formatCurrency(context.parsed.y); 
+                                    
+                                    const dataIndex = context.dataIndex;
+                                    const historyEntry = getActiveBankroll().bankrollHistory[dataIndex];
+                                    if (historyEntry && historyEntry.description) {
+                                        label += `\n(${historyEntry.description})`;
+                                    } else if (historyEntry && (historyEntry.type === 'deposit' || historyEntry.type === 'withdrawal')) {
+                                         label += `\n(${historyEntry.type === 'deposit' ? 'Depósito' : 'Saque'}: ${formatCurrency(historyEntry.transactionValue)})`;
+                                    }
+                                    return label; 
+                                }, 
+                                title: function(tooltipItems) { 
+                                    return `Data: ${tooltipItems[0].label}`; 
+                                } 
+                            } 
+                        } 
+                    }, 
+                    scales: { 
+                        y: { 
+                            beginAtZero: false, 
+                            title: { 
+                                display: true, 
+                                text: 'Valor (R$)', 
+                                color: document.body.classList.contains('dark') ? '#9ca3af' : '#475569', 
+                                font: {size: 11, weight: '600'}
+                            }, 
+                            grid: { 
+                                color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)', 
+                                borderDash: [3, 3], 
+                            }, 
+                            ticks: { 
+                                color: document.body.classList.contains('dark') ? '#9ca3af' : '#475569', 
+                                font: {size: 10} 
+                            } 
+                        }, 
+                        x: { 
+                            title: { 
+                                display: true, 
+                                text: 'Data/Hora do Evento', 
+                                color: document.body.classList.contains('dark') ? '#9ca3af' : '#475569', 
+                                font: {size: 11, weight: '600'} 
+                            }, 
+                            grid: { 
+                                display: false 
+                            }, 
+                            ticks: { 
+                                color: document.body.classList.contains('dark') ? '#9ca3af' : '#475569', 
+                                maxRotation: 25, 
+                                minRotation: 0, 
+                                font: {size: 9},
+                                autoSkipPadding: 15 
+                            } 
+                        } 
+                    },
+                    interaction: { 
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        };
+        
+        window.renderOverallSummaryForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            const totalProfitLossEl = document.getElementById('totalProfitLoss');
+            const totalROIEl = document.getElementById('totalROI');
+            const totalWinRateEl = document.getElementById('totalWinRate');
+            const totalBetsCountEl = document.getElementById('totalBetsCount');
+
+            if (!totalProfitLossEl || !activeBankroll) {
+                if(totalProfitLossEl) totalProfitLossEl.textContent = '-';
+                if(totalROIEl) totalROIEl.textContent = '-';
+                if(totalWinRateEl) totalWinRateEl.textContent = '-';
+                if(totalBetsCountEl) totalBetsCountEl.textContent = '-';
+                return;
+            }
+            const overallSummaryData = createSummaryObject(); 
+            activeBankroll.bets.forEach(bet => updateSummaryWithBetEntry(overallSummaryData, bet)); 
+            const roi = overallSummaryData.totalBetAmountRisked > 0 ? (overallSummaryData.totalProfitLoss / overallSummaryData.totalBetAmountRisked) * 100 : 0;
+            const winRate = overallSummaryData.totalResolvedBets > 0 ? (overallSummaryData.totalWins / overallSummaryData.totalResolvedBets) * 100 : 0;
+            totalProfitLossEl.textContent = formatCurrency(overallSummaryData.totalProfitLoss);
+            totalProfitLossEl.className = `text-sm ${overallSummaryData.totalProfitLoss >= 0 ? 'profit' : 'loss'}`;
+            totalROIEl.textContent = formatPercentage(roi);
+            totalROIEl.className = `text-sm ${roi >= 0 ? 'profit' : 'loss'}`;
+            totalWinRateEl.textContent = formatPercentage(winRate);
+            totalWinRateEl.className = `text-sm ${winRate >= 0 ? 'profit' : 'loss'}`;
+            totalBetsCountEl.textContent = `${overallSummaryData.totalBets} (${overallSummaryData.totalPendingBets} pend.)`;
+        };
+
+        window.renderDailySummaryForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            const targetElement = document.getElementById('dailySummaryCards');
+            if (!targetElement || !activeBankroll) { 
+                if(targetElement) targetElement.innerHTML = '<p class="text-gray-500 col-span-full">Nenhuma banca ativa.</p>'; 
+                return; 
+            }
+            const dailyData = {}; activeBankroll.bets.forEach(bet => { const date = new Date(bet.date); const dayKey = `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${date.getUTCDate().toString().padStart(2, '0')}`; if (!dailyData[dayKey]) dailyData[dayKey] = createSummaryObject(); updateSummaryWithBetEntry(dailyData[dayKey], bet); });
+            renderSummaryCardsInAccordion(dailyData, targetElement, 'day'); 
+        };
+        window.renderWeeklySummaryForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            const targetElement = document.getElementById('weeklySummaryCards');
+            if (!targetElement || !activeBankroll) { 
+                if(targetElement) targetElement.innerHTML = '<p class="text-gray-500 col-span-full">Nenhuma banca ativa.</p>'; 
+                return; 
+            }
+            const weeklyData = {}; activeBankroll.bets.forEach(bet => { const date = new Date(bet.date); const weekKey = getWeekNumber(date); if (!weeklyData[weekKey]) weeklyData[weekKey] = createSummaryObject(); updateSummaryWithBetEntry(weeklyData[weekKey], bet); });
+            renderSummaryCardsInAccordion(weeklyData, targetElement, 'week');
+        };
+        window.renderMonthlySummaryForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            const targetElement = document.getElementById('monthlySummaryCards');
+            if (!targetElement || !activeBankroll) { 
+                if(targetElement) targetElement.innerHTML = '<p class="text-gray-500 col-span-full">Nenhuma banca ativa.</p>'; 
+                return; 
+            }
+            const monthlyData = {}; activeBankroll.bets.forEach(bet => { const date = new Date(bet.date); const monthKey = `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}`; if (!monthlyData[monthKey]) monthlyData[monthKey] = createSummaryObject(); updateSummaryWithBetEntry(monthlyData[monthKey], bet); });
+            renderSummaryCardsInAccordion(monthlyData, targetElement, 'month');
+        };
+
+        // Função para renderizar o resumo dos filtros
+        function renderFilteredSummary(betsToSummarize) {
+            if (!filteredSummaryCardDiv) return;
+
+            if (betsToSummarize.length === 0 || !areAnyFiltersActive()) {
+                filteredSummaryCardDiv.classList.add('hidden');
+                return;
+            }
+            
+            const summaryData = createSummaryObject();
+            betsToSummarize.forEach(bet => updateSummaryWithBetEntry(summaryData, bet));
+
+            const roi = summaryData.totalBetAmountRisked > 0 ? (summaryData.totalProfitLoss / summaryData.totalBetAmountRisked) * 100 : 0;
+            const winRate = summaryData.totalResolvedBets > 0 ? (summaryData.totalWins / summaryData.totalResolvedBets) * 100 : 0;
+
+            filteredTotalProfitLossEl.textContent = formatCurrency(summaryData.totalProfitLoss);
+            filteredTotalProfitLossEl.className = `text-sm ${summaryData.totalProfitLoss >= 0 ? 'profit' : 'loss'}`;
+            filteredTotalROIEl.textContent = formatPercentage(roi);
+            filteredTotalROIEl.className = `text-sm ${roi >= 0 ? 'profit' : 'loss'}`;
+            filteredTotalWinRateEl.textContent = formatPercentage(winRate);
+            filteredTotalWinRateEl.className = `text-sm ${winRate >= 0 ? 'profit' : 'loss'}`;
+            filteredTotalBetsCountEl.textContent = `${summaryData.totalBets} (${summaryData.totalPendingBets} pend.)`;
+            
+            filteredSummaryCardDiv.classList.remove('hidden');
+        }
+
+        // Função para verificar se algum filtro está ativo
+        function areAnyFiltersActive() {
+            return filterDateInput.value || 
+                   filterWeekSelect.value || 
+                   filterMonthSelect.value || 
+                   filterYearSelect.value || 
+                   filterPlatformSelect.value || 
+                   filterBetNatureSelect.value || 
+                   filterGameEventInput.value.trim() !== '';
+        }
+
+
+        window.renderBetsForActive = () => {
+            const activeBankroll = getActiveBankroll();
+            if (!betList || !activeBankroll) { 
+                if(betList) betList.innerHTML = '<tr><td colspan="13" class="text-center text-gray-500 py-2">Nenhuma banca ativa ou nenhuma aposta registrada.</td></tr>'; 
+                if(filteredSummaryCardDiv) filteredSummaryCardDiv.classList.add('hidden');
+                return; 
+            } 
+            betList.innerHTML = '';
+            if (activeBankroll.bets.length === 0) { 
+                betList.innerHTML = '<tr><td colspan="13" class="text-center text-gray-500 py-2">Nenhuma aposta registrada para esta banca.</td></tr>'; 
+                updateCopyButtonState(); 
+                if(filteredSummaryCardDiv) filteredSummaryCardDiv.classList.add('hidden');
+                return; 
+            } 
+            let filteredBets = [...activeBankroll.bets]; 
+            const selectedDate = filterDateInput.value; 
+            const selectedWeek = filterWeekSelect.value; 
+            const selectedMonth = filterMonthSelect.value; 
+            const selectedYear = filterYearSelect.value; 
+            const selectedPlatform = filterPlatformSelect.value; 
+            const selectedBetNature = filterBetNatureSelect.value;
+            const gameEventFilterText = filterGameEventInput.value.toLowerCase().trim(); 
+
+            if (selectedDate) filteredBets = filteredBets.filter(bet => bet.date === selectedDate); 
+            if (selectedWeek) filteredBets = filteredBets.filter(bet => getWeekNumber(new Date(bet.date)) === selectedWeek); 
+            if (selectedMonth) filteredBets = filteredBets.filter(bet => (new Date(bet.date).getUTCMonth() + 1).toString().padStart(2, '0') === selectedMonth); 
+            if (selectedYear) filteredBets = filteredBets.filter(bet => new Date(bet.date).getUTCFullYear().toString() === selectedYear);
+            if (selectedPlatform) { filteredBets = filteredBets.filter(bet => { if (bet.operationType === 'combined') return bet.legs.some(leg => leg.platform === selectedPlatform); return bet.platform === selectedPlatform; });}
+            if (selectedBetNature) filteredBets = filteredBets.filter(bet => bet.betNature === selectedBetNature);
+            if (gameEventFilterText) { 
+                 filteredBets = filteredBets.filter(bet => {
+                    const sportEmoji = sportEmojis[bet.sportCategory] || '';
+                    const gameText = `${sportEmoji} ${bet.gameEvent || ''}`.toLowerCase();
+                    if (bet.operationType === 'combined') {
+                        return (gameText.includes(gameEventFilterText)) || 
+                               bet.legs.some(leg => {
+                                    const legSportEmoji = sportEmojis[bet.sportCategory] || ''; 
+                                    const legGameText = `${legSportEmoji} ${leg.gameEvent || ''}`.toLowerCase();
+                                    return legGameText.includes(gameEventFilterText);
+                                });
+                    }
+                    return gameText.includes(gameEventFilterText);
+                });
+            }
+
+            renderFilteredSummary(filteredBets); 
+
+            filteredBets.sort((a, b) => { let valA = a[currentSortColumn]; let valB = b[currentSortColumn]; if (currentSortColumn === 'date') { valA = a.timestamp; valB = b.timestamp; } else if (['stake', 'odd', 'liability', 'winLossAmount', 'profitLoss', 'commission'].includes(currentSortColumn)) { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; } else if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); } if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1; if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1; return 0; });
+            if (filteredBets.length === 0) { 
+                betList.innerHTML = '<tr><td colspan="13" class="text-center text-gray-500 py-2">Nenhuma aposta encontrada com os filtros aplicados.</td></tr>'; 
+                updateCopyButtonState(); 
+                return; 
+            } 
+            
+            filteredBets.forEach(bet => {
+                const row = betList.insertRow();
+                const checkboxCell = row.insertCell(); checkboxCell.className = 'checkbox-cell standard-height-cell'; const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'bet-copy-checkbox form-checkbox h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500'; checkbox.dataset.betId = bet.id; checkbox.addEventListener('change', updateCopyButtonState); checkboxCell.appendChild(checkbox);
+                
+                const addCell = (text, className = '') => { 
+                    const cell = row.insertCell(); 
+                    cell.textContent = text; 
+                    cell.className = `standard-height-cell ${className}`; 
+                    return cell; 
+                };
+
+                addCell(new Date(bet.date).toLocaleDateString('pt-BR', {timeZone: 'UTC', day: '2-digit', month: '2-digit', year: '2-digit'})); 
+                
+                const sportEmoji = sportEmojis[bet.sportCategory] || sportEmojis['N/A'];
+                let gameEventText = bet.gameEvent || '-';
+                if (bet.operationType === 'combined' && !bet.gameEvent && bet.legs.length > 0 && bet.legs[0].gameEvent) {
+                    gameEventText = `${bet.legs[0].gameEvent} (Combinada)`; 
+                } else if (bet.operationType === 'combined' && bet.gameEvent) {
+                    gameEventText = `${bet.gameEvent} (Combinada)`;
+                }
+                const gameEventCell = addCell(`${sportEmoji} ${gameEventText}`, 'game-event-cell'); 
+                gameEventCell.title = gameEventText; 
+                gameEventCell.addEventListener('click', () => {
+                    const fullText = gameEventCell.dataset.fullText || gameEventText; 
+                    showCustomModal('Jogo/Evento Completo', fullText);
+                });
+                
+                if (bet.operationType === 'combined') { 
+                    addCell(formatCurrency(bet.totalStake)); 
+                    addCell('Múltiplas'); 
+                    addCell(formatCurrency(bet.totalLiability)); 
+                } else { 
+                    addCell(formatCurrency(bet.stake)); 
+                    addCell(bet.odd.toFixed(2)); 
+                    addCell(bet.type === 'lay' ? formatCurrency(bet.liability) : '-'); 
+                }
+                
+                let outcomeText = '', outcomeClass = '';
+                switch(bet.outcome) { case 'win': outcomeText = 'Vitória'; outcomeClass = 'profit'; break; case 'loss': outcomeText = 'Derrota'; outcomeClass = 'loss'; break; case 'push': outcomeText = 'Empate'; outcomeClass = 'push'; break; case 'pending': outcomeText = 'Pendente'; outcomeClass = 'pending'; break; case 'partial_win': outcomeText = 'Vitória Parcial'; outcomeClass = 'profit'; break; case 'partial_loss': outcomeText = 'Derrota Parcial'; outcomeClass = 'loss'; break; default: outcomeText = '-';}
+                addCell(outcomeText, outcomeClass);
+                
+                const winLossCell = addCell((bet.outcome === 'pending' && bet.operationType !== 'combined') ? '-' : formatCurrency(bet.winLossAmount)); 
+                if (bet.outcome !== 'pending' || bet.operationType === 'combined') {
+                     const winLossColor = bet.winLossAmount > 0 ? 'profit' : (bet.winLossAmount < 0 ? 'loss' : null);
+                     if(winLossColor) winLossCell.classList.add(winLossColor);
+                }
+                
+                const profitLossCell = addCell((bet.outcome === 'pending' && bet.operationType !== 'combined') ? '-' : formatCurrency(bet.profitLoss)); 
+                if (bet.outcome !== 'pending' || bet.operationType === 'combined') {
+                    const profitLossColor = bet.profitLoss > 0 ? 'profit' : (bet.profitLoss < 0 ? 'loss' : null);
+                    if(profitLossColor) profitLossCell.classList.add(profitLossColor);
+                }
+                
+                const platformCell = addCell(bet.operationType === 'combined' ? 'Múltiplas' : (platformDisplayMap[bet.platform] || bet.platform), 'platform-cell');
+                
+                addCell(bet.isFreebet ? 'Sim' : 'Não', 'freebet-column'); 
+                
+                const natureCell = addCell(bet.betNature, 'nature-cell');
+
+                const actionsCell = row.insertCell(); 
+                actionsCell.className = 'standard-height-cell actions-cell'; 
+                const editButton = document.createElement('button'); editButton.innerHTML = '✏️'; editButton.className = 'text-blue-500 hover:text-blue-700 px-1'; editButton.title = "Editar Aposta"; editButton.onclick = () => window.editBet(bet.id); actionsCell.appendChild(editButton);
+                const deleteButton = document.createElement('button'); deleteButton.innerHTML = '🗑️'; deleteButton.className = 'text-red-500 hover:text-red-700 px-1'; deleteButton.title = "Excluir Aposta"; deleteButton.onclick = () => window.deleteBet(bet.id); actionsCell.appendChild(deleteButton);
+                if (bet.operationType === 'combined') { const detailsButton = document.createElement('button'); detailsButton.innerHTML = '👁️'; detailsButton.className = 'text-gray-500 hover:text-gray-700 px-1'; detailsButton.title = "Ver Operações"; detailsButton.onclick = () => showCombinedBetDetailsForActive(bet.id); actionsCell.appendChild(detailsButton); }
+            });
+            tableHeaders.forEach(th => { 
+                if(th.dataset.sort === 'commission' || th.dataset.sort === 'type' || th.dataset.sort === 'sportCategory') return; 
+                th.classList.remove('sort-asc', 'sort-desc'); 
+                const sortKey = th.dataset.sort; 
+                let indicator = ''; 
+                if (sortKey === currentSortColumn) { indicator = currentSortDirection === 'asc' ? ' ▲' : ' ▼'; th.classList.add(currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc'); } 
+                const existingText = th.textContent.replace(/ ▲| ▼/g, '');
+                th.textContent = existingText + indicator; 
+            });
+            updateSelectAllCheckboxState();
+            updateCopyButtonState();
+        };
+        
+        window.showCombinedBetDetailsForActive = (betId) => { 
+            const activeBankroll = getActiveBankroll(); if (!activeBankroll) return; const bet = activeBankroll.bets.find(b => b.id === betId); if (!bet || bet.operationType !== 'combined') return;
+            const mainSportEmoji = sportEmojis[bet.sportCategory] || sportEmojis['N/A'];
+            let detailsHtml = `<h4 class="text-lg font-semibold mb-3">Detalhes da Operação Combinada:</h4>`; 
+            detailsHtml += `<p class="text-sm mb-2">Jogo/Evento Principal: <strong>${mainSportEmoji} ${bet.gameEvent || 'N/A'}</strong></p>`; 
+            bet.legs.forEach((leg, index) => { 
+                const legEmoji = sportEmojis[bet.sportCategory] || sportEmojis['N/A']; 
+                detailsHtml += `<div class="text-left p-2 border-b">
+                                    <p class="font-semibold">Operação ${index + 1}:</p>
+                                    <p class="text-xs">Jogo/Evento: ${legEmoji} ${leg.gameEvent || 'N/A'}</p>
+                                    <p class="text-xs">Plataforma: ${platformDisplayMap[leg.platform] || leg.platform}</p>
+                                    <p class="text-xs">Tipo: ${leg.type === 'back' ? 'A Favor' : 'Contra'} | Stake: ${formatCurrency(leg.stake)} | Odd: ${leg.odd.toFixed(2)}</p>
+                                    <p class="text-xs">Resultado Operação: ${leg.outcome} | L/P Operação: ${formatCurrency(leg.profitLoss)}</p>
+                               </div>`; 
+            });
+            showCustomModal('Detalhes da Aposta Combinada', detailsHtml);
+        };
+
+        window.populateFilterOptionsForActive = () => {
+            const activeBankroll = getActiveBankroll(); if (!filterWeekSelect || !activeBankroll) return; 
+            const dates = new Set(), weeks = new Set(), months = new Set(), years = new Set(), platforms = new Set(), gameEvents = new Set(); 
+            
+            activeBankroll.bets.forEach(bet => { 
+                const date = new Date(bet.date); 
+                dates.add(bet.date); 
+                weeks.add(getWeekNumber(date)); 
+                months.add((date.getUTCMonth() + 1).toString().padStart(2, '0')); 
+                years.add(date.getUTCFullYear().toString()); 
+                if (bet.operationType !== 'combined') {
+                    platforms.add(bet.platform || 'N/A');
+                    if(bet.gameEvent) gameEvents.add(bet.gameEvent); 
+                } else {
+                     if(bet.gameEvent) gameEvents.add(bet.gameEvent); 
+                     bet.legs.forEach(leg => {
+                         if(leg.gameEvent) gameEvents.add(leg.gameEvent); 
+                         platforms.add(leg.platform || 'N/A');
+                     });
+                }
+            });
+            filterDateInput.value = filterDateInput.dataset.selected || '';
+            const populateSelect = (selectElement, optionsSet, defaultText, formatFn, useDisplayMap = false, displayMap = null) => { 
+                if (!selectElement) return; 
+                const currentValue = selectElement.dataset.selected || selectElement.value; 
+                selectElement.innerHTML = `<option value="">${defaultText}</option>`; 
+                Array.from(optionsSet).sort((a,b) => {
+                    const textA = useDisplayMap && displayMap ? (displayMap[a] || a) : (formatFn ? formatFn(a) : a);
+                    const textB = useDisplayMap && displayMap ? (displayMap[b] || b) : (formatFn ? formatFn(b) : b);
+                    return textA.localeCompare(textB);
+                }).forEach(item => { 
+                    const option = document.createElement('option'); 
+                    option.value = item; 
+                    option.textContent = useDisplayMap && displayMap ? (displayMap[item] || item) : (formatFn ? formatFn(item) : item); 
+                    selectElement.appendChild(option); 
+                }); 
+                if (Array.from(optionsSet).includes(currentValue)) selectElement.value = currentValue; else selectElement.value = ""; 
+            };
+
+            if (filterBetNatureSelect) {
+                const currentValue = filterBetNatureSelect.dataset.selected || filterBetNatureSelect.value;
+                filterBetNatureSelect.innerHTML = '<option value="">Todas as Naturezas</option>';
+                allBetNatures.forEach(nature => {
+                    const option = document.createElement('option');
+                    option.value = nature.value;
+                    option.textContent = nature.text;
+                    filterBetNatureSelect.appendChild(option);
+                });
+                if (allBetNatures.some(n => n.value === currentValue)) filterBetNatureSelect.value = currentValue;
+                else filterBetNatureSelect.value = "";
+            }
+
+
+            populateSelect(filterWeekSelect, weeks, 'Todas as Semanas', week => `Semana ${week.split('-W')[1]} de ${week.split('-W')[0]}`); 
+            populateSelect(filterMonthSelect, months, 'Todos os Meses', month => new Date(2000, parseInt(month) - 1, 1).toLocaleString('pt-BR', { month: 'long' })); 
+            populateSelect(filterYearSelect, years, 'Todos os Anos'); 
+            populateSelect(filterPlatformSelect, platforms, 'Todas as Plataformas', null, true, platformDisplayMap); 
+        };
+
+        const renderAllVisualsForActive = () => {
+            updateBankrollDisplayForActive(); renderBankrollChartForActive(); renderOverallSummaryForActive(); renderDailySummaryForActive(); renderWeeklySummaryForActive(); renderMonthlySummaryForActive(); renderBetsForActive(); 
+        };
+        // --- FIM: Funções Refatoradas ---
+
+        // --- INÍCIO: Funções de Copiar Apostas ---
+        function updateSelectAllCheckboxState() {
+            if (!selectAllBetsCheckbox) return;
+            const allVisibleCheckboxes = Array.from(betList.querySelectorAll('.bet-copy-checkbox'));
+            if (allVisibleCheckboxes.length > 0) {
+                selectAllBetsCheckbox.checked = allVisibleCheckboxes.every(cb => cb.checked);
+                selectAllBetsCheckbox.indeterminate = !selectAllBetsCheckbox.checked && allVisibleCheckboxes.some(cb => cb.checked);
+            } else {
+                selectAllBetsCheckbox.checked = false;
+                selectAllBetsCheckbox.indeterminate = false;
+            }
+        }
+
+        function updateCopyButtonState() {
+            if (!copySelectedBetsButton) return;
+            const selectedCheckboxes = Array.from(betList.querySelectorAll('.bet-copy-checkbox:checked'));
+            copySelectedBetsButton.disabled = selectedCheckboxes.length === 0;
+            updateSelectAllCheckboxState();
+        }
+        
+        function handleSelectAllBets(event) {
+            const isChecked = event.target.checked;
+            betList.querySelectorAll('.bet-copy-checkbox').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            updateCopyButtonState();
+        }
+
+        function handleCopySelectedBets() {
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll) {
+                showCustomModal('Erro', 'Nenhuma banca ativa para copiar apostas.');
+                return;
+            }
+            const selectedBetIds = Array.from(betList.querySelectorAll('.bet-copy-checkbox:checked')).map(cb => cb.dataset.betId);
+            if (selectedBetIds.length === 0) {
+                showCustomModal('Nenhuma Aposta Selecionada', 'Por favor, selecione pelo menos uma aposta para copiar.');
+                return;
+            }
+
+            const otherBankrolls = bankrolls.filter(b => b.id !== activeBankrollId);
+            if (otherBankrolls.length === 0) {
+                showCustomModal('Nenhuma Banca de Destino', 'Não existem outras bancas para copiar as apostas selecionadas.');
+                return;
+            }
+
+            let modalMessage = '<p class="mb-2">Selecione a banca de destino para copiar as apostas:</p>';
+            modalMessage += '<select id="targetBankrollSelect" class="select-field">';
+            otherBankrolls.forEach(b => {
+                modalMessage += `<option value="${b.id}">${b.name}</option>`;
+            });
+            modalMessage += '</select>';
+
+            showCustomModal('Copiar Apostas Para...', modalMessage, 
+                [
+                    {text: 'Cancelar', class: 'cancel'},
+                    {text: 'Confirmar Cópia', class: 'confirm', action: () => {
+                        const targetBankrollId = document.getElementById('targetBankrollSelect').value;
+                        if (targetBankrollId) {
+                            performCopyBets(selectedBetIds, targetBankrollId);
+                        }
+                    }}
+                ]
+            );
+        }
+
+        function performCopyBets(betIdsToCopy, targetBankrollId) {
+            const sourceBankroll = getActiveBankroll();
+            const targetBankroll = bankrolls.find(b => b.id === targetBankrollId);
+
+            if (!sourceBankroll || !targetBankroll) {
+                showCustomModal('Erro', 'Banca de origem ou destino não encontrada.');
+                return;
+            }
+
+            let copiedCount = 0;
+            betIdsToCopy.forEach(betId => {
+                const originalBet = sourceBankroll.bets.find(b => b.id === betId);
+                if (originalBet) {
+                    const copiedBet = JSON.parse(JSON.stringify(originalBet)); 
+                    copiedBet.id = 'bet_copy_' + Date.now() + Math.random().toString(36).substr(2, 9) + copiedCount;
+                    copiedBet.outcome = 'pending';
+                    copiedBet.winLossAmount = 0;
+                    copiedBet.profitLoss = 0;
+                    targetBankroll.bets.push(copiedBet);
+                    copiedCount++;
+                }
+            });
+
+            if (copiedCount > 0) {
+                saveAllData();
+                showCustomModal('Sucesso!', `${copiedCount} aposta(s) copiada(s) para a banca "${targetBankroll.name}". As apostas copiadas estão com status "Pendente".`);
+                if (activeBankrollId === targetBankrollId) {
+                    renderUIForActiveBankrollContent();
+                }
+            } else {
+                showCustomModal('Nenhuma Aposta Copiada', 'Não foi possível copiar as apostas selecionadas.');
+            }
+        }
+        // --- FIM: Funções de Copiar Apostas ---
+
+
+        // --- INÍCIO: Funções de manipulação de formulário e eventos ---
+        const toggleLegBetTypeFields = (legIndexOrPrefix) => { 
+            const typeSelect = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}BetType${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const backFields = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}BackBetFields${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const layFields = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}LayBetFields${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const amountInput = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}BetAmount${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const layStakeIn = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}LayStake${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            if (!typeSelect) return; const selectedType = typeSelect.value;
+            if (legIndexOrPrefix === 'main') {
+                 const mainBackFields = document.getElementById('backBetFields'); const mainLayFields = document.getElementById('layBetFields'); const mainBetAmount = document.getElementById('betAmount'); const mainLayStake = document.getElementById('layStake'); const mainOddInput = document.getElementById('odd');
+                if (selectedType === 'back') { mainBackFields.classList.remove('hidden'); mainLayFields.classList.add('hidden'); mainBetAmount.required = true; if(mainOddInput) mainOddInput.required = true; if(mainLayStake) mainLayStake.required = false; }
+                else if (selectedType === 'lay') { mainBackFields.classList.add('hidden'); mainLayFields.classList.remove('hidden'); mainBetAmount.required = false; if(mainOddInput) mainOddInput.required = true; if(mainLayStake) mainLayStake.required = true; }
+                else { mainBackFields.classList.add('hidden'); mainLayFields.classList.add('hidden'); mainBetAmount.required = false; if(mainOddInput) mainOddInput.required = false; if(mainLayStake) mainLayStake.required = false; }
+            } else { 
+                const legBackFields = document.getElementById(`legBackBetFields_${legIndexOrPrefix}`); const legLayFields = document.getElementById(`legLayBetFields_${legIndexOrPrefix}`); const legBetAmount = document.getElementById(`legBetAmount_${legIndexOrPrefix}`); const legLayStake = document.getElementById(`legLayStake_${legIndexOrPrefix}`); const legOddInput = document.getElementById(`legOdd_${legIndexOrPrefix}`);
+                if (selectedType === 'back') { if(legBackFields) legBackFields.classList.remove('hidden'); if(legLayFields) legLayFields.classList.add('hidden'); if(legBetAmount) legBetAmount.required = true; if(legOddInput) legOddInput.required = true; if(legLayStake) legLayStake.required = false; }
+                else if (selectedType === 'lay') { if(legBackFields) legBackFields.classList.add('hidden'); if(legLayFields) legLayFields.classList.remove('hidden'); if(legBetAmount) legBetAmount.required = false; if(legOddInput) legOddInput.required = true; if(legLayStake) legLayStake.required = true; }
+                else { if(legBackFields) legBackFields.classList.add('hidden'); if(legLayFields) legLayFields.classList.add('hidden'); if(legBetAmount) legBetAmount.required = false; if(legOddInput) legOddInput.required = false; if(legLayStake) legLayStake.required = false; }
+            }
+        };
+        const calculateLegLayLiability = (legIndexOrPrefix) => { 
+            const typeSelect = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}BetType${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const stakeInput = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}LayStake${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const oddIn = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}Odd${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            const liabilityIn = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}LayLiability${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            if (!typeSelect || typeSelect.value !== 'lay' || !stakeInput || !oddIn || !liabilityIn) return;
+            
+            const layStake = parseFloat(stakeInput.value); 
+            const layOdd = parseFloat(oddIn.value);
+
+            if (!isNaN(layStake) && layStake > 0 && !isNaN(layOdd) && layOdd > 1) {
+                liabilityIn.value = (layStake * (layOdd - 1)).toFixed(2);
+            } else {
+                liabilityIn.value = '';
+            }
+        };
+        const toggleLegCommissionField = (legIndexOrPrefix) => {
+            const platformSel = document.getElementById(`${legIndexOrPrefix === 'main' ? '' : 'leg'}Platform${legIndexOrPrefix === 'main' ? '' : '_' + legIndexOrPrefix}`);
+            let currentCommissionFieldEl, currentCommissionInputEl;
+
+            if (legIndexOrPrefix === 'main') {
+                currentCommissionFieldEl = document.getElementById('commissionField'); 
+                currentCommissionInputEl = document.getElementById('commission');    
+            } else {
+                currentCommissionFieldEl = document.getElementById(`legCommissionField_${legIndexOrPrefix}`);
+                currentCommissionInputEl = document.getElementById(`legCommission_${legIndexOrPrefix}`);
+            }
+            
+            if (!platformSel || !currentCommissionFieldEl || !currentCommissionInputEl) {
+                return;
+            }
+
+            const selectedPlatformValue = platformSel.value.toLowerCase(); 
+            if (exchangePlatforms.includes(selectedPlatformValue)) {
+                currentCommissionFieldEl.classList.remove('hidden');
+            } else {
+                currentCommissionFieldEl.classList.add('hidden');
+                currentCommissionInputEl.value = '0'; 
+            }
+        };
+        const createLegHTML = (legNumber) => { 
+            const legIndex = legNumber -1; let platformOptionsHTML = ''; const mainPlatformSelect = document.getElementById('platform');
+            if (mainPlatformSelect && mainPlatformSelect.dataset.optionsHtml) platformOptionsHTML = mainPlatformSelect.dataset.optionsHtml;
+            return `
+                <div class="leg-entry mt-3" id="legEntry_${legIndex}">
+                    <div class="flex justify-between items-center mb-2"><h4 class="text-md font-semibold text-gray-600">Operação ${legNumber}</h4><button type="button" class="remove-leg-btn btn-danger" data-leg-index="${legIndex}">Remover</button></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> <div><label for="legGameEvent_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Jogo/Evento Oper.:</label><input type="text" id="legGameEvent_${legIndex}" name="legGameEvent" class="input-field leg-field" placeholder="Ex: Real Madrid vs Barcelona"></div>
+                        <div><label for="legPlatform_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Plataforma:</label><select id="legPlatform_${legIndex}" name="legPlatform" class="select-field leg-field platform-select" required><option value="">Selecione...</option>${platformOptionsHTML}</select></div>
+                        <div><label for="legBetType_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Tipo:</label><select id="legBetType_${legIndex}" name="legBetType" class="select-field leg-field" required><option value="">Selecione...</option><option value="back">A Favor (Back)</option><option value="lay">Contra (Lay)</option></select></div>
+                        <div id="legBackBetFields_${legIndex}"><label for="legBetAmount_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Valor Apostado (R$):</label><input type="number" id="legBetAmount_${legIndex}" name="legStake" step="0.01" class="input-field leg-field"></div>
+                        <div id="legLayBetFields_${legIndex}" class="hidden grid grid-cols-2 gap-2"><div><label for="legLayStake_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Aposta Lay (R$):</label><input type="number" id="legLayStake_${legIndex}" name="legStake" step="0.01" class="input-field leg-field"></div><div><label for="legLayLiability_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Responsabilidade (R$):</label><input type="number" id="legLayLiability_${legIndex}" name="legLiability" class="input-field leg-field" readonly></div></div>
+                        <div><label for="legOdd_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Odd:</label><input type="number" id="legOdd_${legIndex}" name="legOdd" step="0.01" class="input-field leg-field"></div>
+                        <div id="legCommissionField_${legIndex}" class="hidden"><label for="legCommission_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Comissão (%):</label><input type="number" id="legCommission_${legIndex}" name="legCommission" step="0.01" class="input-field leg-field" value="0"></div>
+                        <div><label for="legOutcome_${legIndex}" class="block text-xs font-medium text-gray-700 mb-1">Resultado Operação:</label><select id="legOutcome_${legIndex}" name="legOutcome" class="select-field leg-field" required><option value="">Selecione...</option><option value="pending">Pendente</option><option value="win">Vitória</option><option value="loss">Derrota</option><option value="push">Empate (Push)</option><option value="void">Anulada (Void)</option></select></div>
+                        <div class="self-end"><div class="checkbox-container"><input type="checkbox" id="legIsFreebet_${legIndex}" name="legIsFreebet" class="w-4 h-4 text-green-500 bg-gray-100 border-gray-300 rounded focus:ring-green-400"><label for="legIsFreebet_${legIndex}" class="text-sm font-medium text-gray-700">É Freebet?</label></div></div>
+                    </div>
+                </div>`;
+        };
+        
+        function toDisplayCase(str) {
+            if (!str) return "";
+            const acronyms = ["N/A", "MMA", "KTO", "RDP", "AI", "UX", "P9", "6R", "6Z", "7K", "9D", "9F"]; 
+            const specialCases = { 
+                "f12.bet": "F12.Bet", "mr. jack bet": "Mr. Jack Bet", "luva.bet": "Luva.Bet",
+                "bet.app": "Bet.App", "bet.bet": "Bet.Bet", "elisa.bet": "Elisa.Bet", "luck.bet": "Luck.Bet",
+                "alfa.bet": "Alfa.Bet", "galera.bet": "Galera.Bet" , "betsul": "Betsul"
+            };
+
+            const lowerStr = str.toLowerCase();
+            if (specialCases[lowerStr]) return specialCases[lowerStr];
+            if (acronyms.includes(str.toUpperCase())) return str.toUpperCase();
+
+
+            return lowerStr.split(' ').map(word => {
+                 if (word.includes('.')) { 
+                    return word.split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('.');
+                }
+                if (["da", "de", "do", "dos", "das"].includes(word) && str.toLowerCase().indexOf(word) > 0 && str.toLowerCase().indexOf(word) !== str.toLowerCase().lastIndexOf(word) && str.toLowerCase().split(' ').length > 1) { 
+                     return word;
+                }
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            }).join(' ');
+        }
+
+        const populateMainPlatformOptions = () => { 
+            const mainPlatformSelect = document.getElementById('platform');
+            
+            const examplePlatforms = platformNames.map(name => ({
+                value: name.toLowerCase().replace(/\s+/g, '-').replace(/\./g, ''), 
+                text: toDisplayCase(name)
+            })).sort((a,b) => {
+                if (a.text === "N/A") return 1; 
+                if (b.text === "N/A") return -1; 
+                return a.text.localeCompare(b.text);
+            });
+
+
+            let optionsHtml = ''; 
+            while (mainPlatformSelect.options.length > 1) mainPlatformSelect.remove(1);
+            
+            examplePlatforms.forEach(opt => { 
+                optionsHtml += `<option value="${opt.value}">${opt.text}</option>`; 
+                mainPlatformSelect.add(new Option(opt.text, opt.value)); 
+            });
+            
+            mainPlatformSelect.dataset.optionsHtml = optionsHtml; 
+        };
+        const addLegToForm = (legDataToLoad = null) => { 
+            legCounter++; const newLegDiv = document.createElement('div'); newLegDiv.innerHTML = createLegHTML(legCounter); const actualLegEntry = newLegDiv.firstElementChild; legsContainer.appendChild(actualLegEntry);
+            const legIndex = legCounter - 1; 
+            document.getElementById(`legBetType_${legIndex}`).addEventListener('change', () => toggleLegBetTypeFields(legIndex));
+            document.getElementById(`legOdd_${legIndex}`).addEventListener('input', () => calculateLegLayLiability(legIndex));
+            document.getElementById(`legLayStake_${legIndex}`).addEventListener('input', () => calculateLegLayLiability(legIndex));
+            document.getElementById(`legPlatform_${legIndex}`).addEventListener('change', () => toggleLegCommissionField(legIndex));
+            if (legDataToLoad) {
+                document.getElementById(`legGameEvent_${legIndex}`).value = legDataToLoad.gameEvent || ''; 
+                document.getElementById(`legPlatform_${legIndex}`).value = legDataToLoad.platform; 
+                document.getElementById(`legBetType_${legIndex}`).value = legDataToLoad.type; 
+                toggleLegBetTypeFields(legIndex); 
+                if(legDataToLoad.type === 'back') document.getElementById(`legBetAmount_${legIndex}`).value = legDataToLoad.stake; 
+                else document.getElementById(`legLayStake_${legIndex}`).value = legDataToLoad.stake;
+                document.getElementById(`legOdd_${legIndex}`).value = legDataToLoad.odd; 
+                calculateLegLayLiability(legIndex); 
+                document.getElementById(`legCommission_${legIndex}`).value = legDataToLoad.commission; 
+                toggleLegCommissionField(legIndex); 
+                document.getElementById(`legOutcome_${legIndex}`).value = legDataToLoad.outcome; 
+                document.getElementById(`legIsFreebet_${legIndex}`).checked = legDataToLoad.isFreebet;
+            } else { 
+                toggleLegBetTypeFields(legIndex); 
+                toggleLegCommissionField(legIndex); 
+            }
+        };
+        const updateCombinedModeUI = () => { 
+            const leg1Wrapper = document.getElementById('leg1Wrapper');
+            if(leg1Title) leg1Title.textContent = 'Operação 1'; 
+            if(addLegButton) addLegButton.textContent = 'Adicionar Outra Operação'; 
+            if(mainGameEventField) mainGameEventField.style.display = isCombinedBetMode ? 'block' : 'block'; 
+
+            if (isCombinedBetMode) {
+                toggleCombinedBetModeButton.textContent = 'Cancelar Aposta Combinada'; 
+                toggleCombinedBetModeButton.classList.remove('btn-secondary'); 
+                toggleCombinedBetModeButton.classList.add('btn-primary');
+                combinedBetStatus.classList.remove('hidden'); 
+                addLegButton.classList.remove('hidden'); 
+                leg1Title.classList.remove('hidden'); 
+                leg1Wrapper.classList.add('leg-entry'); 
+                submitButton.textContent = 'Registar Operação Combinada'; 
+                betNatureSelect.value = 'Surebet'; 
+            } else {
+                toggleCombinedBetModeButton.textContent = 'Criar Aposta Combinada'; 
+                toggleCombinedBetModeButton.classList.add('btn-secondary'); 
+                toggleCombinedBetModeButton.classList.remove('btn-primary');
+                combinedBetStatus.classList.add('hidden'); 
+                addLegButton.classList.add('hidden'); 
+                leg1Title.classList.add('hidden'); 
+                leg1Wrapper.classList.remove('leg-entry'); 
+                legsContainer.innerHTML = ''; 
+                legCounter = 1; 
+                submitButton.textContent = 'Adicionar Aposta';
+                if (betNatureSelect.value === 'Surebet' || betNatureSelect.value === 'Combined') betNatureSelect.value = 'Normal';
+            }
+        };
+        const cancelEdit = () => { 
+            editingBetId = null; 
+            betForm.reset(); 
+            isCombinedBetMode = false; 
+            updateCombinedModeUI(); 
+            legsContainer.innerHTML = ''; 
+            legCounter = 1; 
+            toggleLegBetTypeFields('main'); 
+            toggleLegCommissionField('main');
+            submitButton.textContent = isCombinedBetMode ? 'Registar Operação Combinada' : 'Adicionar Aposta';
+            cancelEditButton.classList.add('hidden');
+        };
+        
+        window.renderSummaryCardsInAccordion = (summaryData, targetCardContainer, type) => { 
+            if (!targetCardContainer) return; 
+            targetCardContainer.innerHTML = ''; 
+            
+            if (Object.keys(summaryData).length === 0) { 
+                const noDataP = document.createElement('p'); 
+                noDataP.className = 'text-gray-500 col-span-full w-full'; 
+                noDataP.textContent = `Nenhum dado ${type.toLowerCase()} disponível.`; 
+                targetCardContainer.appendChild(noDataP); 
+                return; 
+            }
+            const sortedKeys = Object.keys(summaryData).sort((a, b) => { 
+                if (type === 'day' || type === 'month' || type === 'week') return new Date(b.split('-W')[0] || b) - new Date(a.split('-W')[0] || a); 
+                return b.localeCompare(a); 
+            });
+            sortedKeys.forEach(key => {
+                const data = summaryData[key]; 
+                let title = key;
+                if (type === 'day') { const [year, month, day] = key.split('-'); title = new Date(year, month - 1, day).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }); }
+                else if (type === 'week') title = `Semana ${key.split('-W')[1]} de ${key.split('-W')[0]}`;
+                else if (type === 'month') { const [year, monthNum] = key.split('-'); title = new Date(year, parseInt(monthNum) - 1, 1).toLocaleString('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' }); }
+                const profitLossClass = data.totalProfitLoss >= 0 ? 'profit' : 'loss'; 
+                const roi = data.totalBetAmountRisked > 0 ? (data.totalProfitLoss / data.totalBetAmountRisked) * 100 : 0; 
+                const winRate = data.totalResolvedBets > 0 ? (data.totalWins / data.totalResolvedBets) * 100 : 0;
+                const summaryCard = document.createElement('div'); 
+                summaryCard.className = 'summary-card-compact'; 
+                summaryCard.innerHTML = `<h3 class="text-base font-semibold capitalize mb-1">${title}</h3><p class="text-xs text-gray-600">Total Apostado (Risco): ${formatCurrency(data.totalBetAmountRisked)}</p><p class="text-xs text-gray-600">Ganho/Perdido (Resolvidas): ${formatCurrency(data.totalWinLossAmount)}</p><p class="text-sm ${profitLossClass}">L/P (Resolvidas): ${formatCurrency(data.totalProfitLoss)}</p><p class="text-xs text-gray-600">ROI (Resolvidas): <span class="${roi >= 0 ? 'profit' : 'loss'}">${formatPercentage(roi)}</span></p><p class="text-xs text-gray-600">Vitórias: <span class="${winRate >= 0 ? 'profit' : 'loss'}">${formatPercentage(winRate)}</span> (${data.totalWins}/${data.totalResolvedBets})</p><p class="text-xs text-gray-600">Total de Operações: ${data.totalBets} (${data.totalPendingBets} Pend.)</p>`;
+                targetCardContainer.appendChild(summaryCard);
+            });
+        };
+
+        const createSummaryObject = () => ({ totalBetAmountRisked: 0, totalWinLossAmount: 0, totalProfitLoss: 0, totalBets: 0, totalWins: 0, totalLosses: 0, totalPushes: 0, totalPendingBets: 0, totalResolvedBets: 0 }); 
+        const updateSummaryWithBetEntry = (summaryObject, betEntry) => { 
+            summaryObject.totalBets++; 
+            if (betEntry.operationType === 'combined') {
+                if (betEntry.outcome === 'pending') summaryObject.totalPendingBets++; else summaryObject.totalResolvedBets++;
+                summaryObject.totalBetAmountRisked += betEntry.totalStake; summaryObject.totalWinLossAmount += betEntry.winLossAmount; summaryObject.totalProfitLoss += betEntry.profitLoss;  
+                if (betEntry.outcome === 'win' || betEntry.outcome === 'partial_win') summaryObject.totalWins++; else if (betEntry.outcome === 'loss' || betEntry.outcome === 'partial_loss') summaryObject.totalLosses++; else if (betEntry.outcome === 'push') summaryObject.totalPushes++;
+            } else { 
+                if (betEntry.outcome === 'pending') { summaryObject.totalPendingBets++; if (!betEntry.isFreebet) summaryObject.totalBetAmountRisked += (betEntry.type === 'back' ? betEntry.stake : betEntry.liability); }
+                else { summaryObject.totalResolvedBets++; if (!betEntry.isFreebet) summaryObject.totalBetAmountRisked += (betEntry.type === 'back' ? betEntry.stake : betEntry.liability); summaryObject.totalWinLossAmount += betEntry.winLossAmount; summaryObject.totalProfitLoss += betEntry.profitLoss;
+                    if (betEntry.outcome === 'win') summaryObject.totalWins++; else if (betEntry.outcome === 'loss') summaryObject.totalLosses++; else if (betEntry.outcome === 'push') summaryObject.totalPushes++;
+                }
+            }
+        };
+        // --- FIM: Funções de manipulação de formulário e eventos ---
+
+        // --- INÍCIO: Funções de Saque e Depósito ---
+        function handleTransaction(type) {
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll) {
+                showCustomModal('Erro', 'Nenhuma banca ativa selecionada.');
+                return;
+            }
+
+            const isDeposit = type === 'deposit';
+            const amount = parseFloat(isDeposit ? depositAmountInput.value : withdrawalAmountInput.value);
+            const date = isDeposit ? depositDateInput.value : withdrawalDateInput.value;
+            const description = isDeposit ? depositDescriptionInput.value.trim() : withdrawalDescriptionInput.value.trim();
+
+            if (isNaN(amount) || amount <= 0) {
+                showCustomModal('Erro de Validação', 'Por favor, insira um valor válido maior que zero.');
+                return;
+            }
+            if (!date) {
+                showCustomModal('Erro de Validação', 'Por favor, selecione uma data para a transação.');
+                return;
+            }
+            if (!isDeposit && amount > activeBankroll.currentBalance) {
+                 showCustomModal('Saldo Insuficiente', `Você não pode sacar ${formatCurrency(amount)} pois seu saldo atual é de ${formatCurrency(activeBankroll.currentBalance)}.`);
+                return;
+            }
+
+            const transactionTimestamp = new Date(date + "T00:00:00Z").getTime() + (Date.now() % 86400000);
+            
+            activeBankroll.bankrollHistory.push({
+                date: date,
+                value: amount, 
+                transactionValue: amount, 
+                timestamp: transactionTimestamp,
+                type: type, 
+                eventId: `${type}_${transactionTimestamp}`,
+                description: description || (isDeposit ? 'Depósito' : 'Saque')
+            });
+
+            if (isDeposit) {
+                depositAmountInput.value = '';
+                depositDescriptionInput.value = '';
+                depositModal.classList.remove('open');
+            } else {
+                withdrawalAmountInput.value = '';
+                withdrawalDescriptionInput.value = '';
+                withdrawalModal.classList.remove('open');
+            }
+            
+            rebuildBankrollStateForActive(); 
+            saveAllData();
+            renderAllVisualsForActive(); 
+            showCustomModal('Sucesso', `${isDeposit ? 'Depósito' : 'Saque'} de ${formatCurrency(amount)} realizado com sucesso!`);
+        }
+
+        // --- INÍCIO: Funções do Modo Noturno ---
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                if(themeToggleBtn) themeToggleBtn.textContent = '☀️ Modo Claro';
+            } else {
+                document.body.classList.remove('dark');
+                 if(themeToggleBtn) themeToggleBtn.textContent = '🌙 Modo Escuro';
+            }
+            if (getActiveBankroll()) {
+                 renderBankrollChartForActive(); 
+            }
+            saveAllData();
+        }
+
+        function toggleTheme() {
+            if (document.body.classList.contains('dark')) {
+                setTheme('light');
+            } else {
+                setTheme('dark');
+            }
+        }
+        // --- FIM: Funções do Modo Noturno ---
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mainContentArea = document.getElementById('mainContentArea');
+            betForm = document.getElementById('betForm');
+            betDateInput = document.getElementById('betDate');
+            betTypeSelect = document.getElementById('betType'); 
+            backBetFields = document.getElementById('backBetFields'); 
+            layBetFields = document.getElementById('layBetFields');  
+            betAmountInput = document.getElementById('betAmount'); 
+            oddInput = document.getElementById('odd'); 
+            layStakeInput = document.getElementById('layStake'); 
+            layLiabilityInput = document.getElementById('layLiability'); 
+            outcomeInput = document.getElementById('outcome'); 
+            platformSelect = document.getElementById('platform'); 
+            commissionField = document.getElementById('commissionField'); 
+            commissionInput = document.getElementById('commission'); 
+            sportCategorySelect = document.getElementById('sportCategory'); 
+            betNatureSelect = document.getElementById('betNature'); 
+            isFreebetInput = document.getElementById('isFreebet'); 
+            gameEventInput = document.getElementById('gameEvent'); 
+            mainGameEventField = document.getElementById('mainGameEventField');
+            submitButton = document.getElementById('submitButton');
+            cancelEditButton = document.getElementById('cancelEditButton');
+            betList = document.getElementById('betList');
+            currentBankrollDisplay = document.getElementById('currentBankrollDisplay');
+            bankrollInput = document.getElementById('bankrollInput');
+            updateBankrollButton = document.getElementById('updateBankrollButton');
+            bankrollChartCanvas = document.getElementById('bankrollChart');
+            
+            dailySummaryCardsDiv = document.getElementById('dailySummaryCards');
+            weeklySummaryCardsDiv = document.getElementById('weeklySummaryCards');
+            monthlySummaryCardsDiv = document.getElementById('monthlySummaryCards');
+
+            filterDateInput = document.getElementById('filterDate');
+            filterWeekSelect = document.getElementById('filterWeek');
+            filterMonthSelect = document.getElementById('filterMonth');
+            filterYearSelect = document.getElementById('filterYear');
+            filterPlatformSelect = document.getElementById('filterPlatform');
+            filterBetNatureSelect = document.getElementById('filterBetNature');
+            filterGameEventInput = document.getElementById('filterGameEvent'); 
+            tableHeaders = document.querySelectorAll('table thead th[data-sort]');
+            toggleCombinedBetModeButton = document.getElementById('toggleCombinedBetModeButton');
+            combinedBetStatus = document.getElementById('combinedBetStatus');
+            legsContainer = document.getElementById('legsContainer');
+            addLegButton = document.getElementById('addLegButton');
+            leg1Title = document.getElementById('leg1Title');
+            addBankrollButton = document.getElementById('addBankrollButton');
+            newBankrollNameInput = document.getElementById('newBankrollName');
+            bankrollTabsContainer = document.getElementById('bankrollTabsContainer');
+            activeBankrollDetailsDiv = document.getElementById('activeBankrollDetails');
+            selectAllBetsCheckbox = document.getElementById('selectAllBetsCheckbox');
+            copySelectedBetsButton = document.getElementById('copySelectedBetsButton');
+
+            // Resumo Filtrado
+            filteredSummaryCardDiv = document.getElementById('filteredSummaryCard');
+            filteredTotalProfitLossEl = document.getElementById('filteredTotalProfitLoss');
+            filteredTotalROIEl = document.getElementById('filteredTotalROI');
+            filteredTotalWinRateEl = document.getElementById('filteredTotalWinRate');
+            filteredTotalBetsCountEl = document.getElementById('filteredTotalBetsCount');
+
+            themeToggleBtn = document.getElementById('themeToggle'); 
+
+
+            depositModal = document.getElementById('depositModal');
+            openDepositModalButton = document.getElementById('openDepositModalButton');
+            cancelDepositBtn = document.getElementById('cancelDepositBtn');
+            confirmDepositBtn = document.getElementById('confirmDepositBtn');
+            depositAmountInput = document.getElementById('depositAmount');
+            depositDateInput = document.getElementById('depositDate');
+            depositDescriptionInput = document.getElementById('depositDescription');
+
+            withdrawalModal = document.getElementById('withdrawalModal');
+            openWithdrawalModalButton = document.getElementById('openWithdrawalModalButton');
+            cancelWithdrawalBtn = document.getElementById('cancelWithdrawalBtn');
+            confirmWithdrawalBtn = document.getElementById('confirmWithdrawalBtn');
+            withdrawalAmountInput = document.getElementById('withdrawalAmount');
+            withdrawalDateInput = document.getElementById('withdrawalDate');
+            withdrawalDescriptionInput = document.getElementById('withdrawalDescription');
+
+            if(openDepositModalButton) openDepositModalButton.addEventListener('click', () => {
+                depositDateInput.value = new Date().toISOString().split('T')[0]; 
+                depositModal.classList.add('open');
+            });
+            if(openWithdrawalModalButton) openWithdrawalModalButton.addEventListener('click', () => {
+                withdrawalDateInput.value = new Date().toISOString().split('T')[0]; 
+                withdrawalModal.classList.add('open');
+            });
+
+            if(cancelDepositBtn) cancelDepositBtn.addEventListener('click', () => depositModal.classList.remove('open'));
+            if(cancelWithdrawalBtn) cancelWithdrawalBtn.addEventListener('click', () => withdrawalModal.classList.remove('open'));
+
+            if(confirmDepositBtn) confirmDepositBtn.addEventListener('click', () => handleTransaction('deposit'));
+            if(confirmWithdrawalBtn) confirmWithdrawalBtn.addEventListener('click', () => handleTransaction('withdrawal'));
+
+
+            populateMainPlatformOptions(); 
+
+            if (addBankrollButton) addBankrollButton.addEventListener('click', handleAddBankroll);
+            if (selectAllBetsCheckbox) selectAllBetsCheckbox.addEventListener('change', handleSelectAllBets);
+            if (copySelectedBetsButton) copySelectedBetsButton.addEventListener('click', handleCopySelectedBets);
+            
+            if (platformSelect) { 
+                platformSelect.addEventListener('change', () => {
+                    toggleLegCommissionField('main');
+                });
+            } 
+
+            betTypeSelect.addEventListener('change', () => toggleLegBetTypeFields('main'));
+            oddInput.addEventListener('input', () => calculateLegLayLiability('main'));
+            layStakeInput.addEventListener('input', () => calculateLegLayLiability('main'));
+            
+            if (cancelEditButton) cancelEditButton.addEventListener('click', cancelEdit);
+            if (toggleCombinedBetModeButton) toggleCombinedBetModeButton.addEventListener('click', () => { isCombinedBetMode = !isCombinedBetMode; updateCombinedModeUI(); });
+            if (addLegButton) addLegButton.addEventListener('click', () => addLegToForm());
+            legsContainer.addEventListener('click', function(event) { if (event.target.classList.contains('remove-leg-btn')) event.target.closest('.leg-entry').remove(); });
+
+            if (betForm) {
+                betForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const activeBankroll = getActiveBankroll();
+                    if (!activeBankroll) {
+                        showCustomModal('Erro', 'Nenhuma banca ativa. Por favor, crie ou selecione uma banca.');
+                        return;
+                    }
+                    
+                    const overallBetDate = betDateInput.value;
+                    const overallSportCategory = sportCategorySelect.value;
+                    const overallBetNature = betNatureSelect.value;
+                    const overallGameEvent = gameEventInput.value.trim(); 
+                    const overallTimestamp = new Date(overallBetDate + "T00:00:00Z").getTime() + (Date.now() % 86400000); 
+
+                    if (!overallBetDate || !overallSportCategory) { showCustomModal('Erro de Entrada', 'Data da Operação e Esporte/Categoria são obrigatórios.'); return; }
+                    if (!overallGameEvent && !isCombinedBetMode) { 
+                        showCustomModal('Erro de Entrada', 'O campo "Jogo/Evento" é obrigatório para apostas simples.');
+                        return;
+                    }
+
+
+                    try {
+                        if (isCombinedBetMode || overallBetNature === 'Surebet' || overallBetNature === 'Combined') {
+                            const legsData = []; let operationOverallProfitLoss = 0; let operationTotalStake = 0; let operationTotalLiability = 0; let operationIsPending = false; let operationHasWins = false; let operationHasLosses = false;
+                            
+                            const leg1_gameEvent = isCombinedBetMode ? (document.getElementById('gameEvent').value.trim() || '') : overallGameEvent; 
+                            const leg1_platform = platformSelect.value; 
+                            const leg1_type = betTypeSelect.value; 
+                            const leg1_stake = parseFloat(leg1_type === 'back' ? betAmountInput.value : layStakeInput.value) || 0; 
+                            const leg1_odd = parseFloat(oddInput.value) || 1; 
+                            const leg1_commission_field = document.getElementById('commission'); 
+                            const leg1_commission = parseFloat(leg1_commission_field.value) || 0; 
+                            const leg1_outcome = outcomeInput.value; 
+                            const leg1_isFreebet = isFreebetInput.checked; 
+                            let leg1_liability = 0; let leg1_profitLoss = 0;
+
+                            if (!leg1_platform || !leg1_type || leg1_stake <= 0 || leg1_odd <= 1 || !leg1_outcome) { showCustomModal('Erro na Operação 1', 'Preencha todos os campos obrigatórios da Operação 1 (Plataforma, Tipo, Stake > 0, Odd > 1, Resultado).'); return; }
+                            if (isCombinedBetMode && !leg1_gameEvent) { 
+                                showCustomModal('Erro na Operação 1', 'O campo "Jogo/Evento" é obrigatório para cada operação em uma aposta combinada.');
+                                return;
+                            }
+
+                            if (leg1_type === 'lay') { leg1_liability = leg1_stake * (leg1_odd - 1); if (leg1_liability <=0 && leg1_outcome === 'loss') { showCustomModal('Erro na Operação 1', 'Responsabilidade Lay inválida para resultado de perda na Operação 1.'); return; } } else leg1_liability = leg1_stake;
+                            operationTotalStake += leg1_stake; if(leg1_type === 'lay') operationTotalLiability += leg1_liability;
+                            if (leg1_outcome !== 'pending') {
+                                if (leg1_type === 'back') { if (leg1_outcome === 'win') leg1_profitLoss = (leg1_stake * leg1_odd) - leg1_stake; else if (leg1_outcome === 'loss') leg1_profitLoss = -leg1_stake; }
+                                else { if (leg1_outcome === 'win') leg1_profitLoss = leg1_stake; else if (leg1_outcome === 'loss') leg1_profitLoss = -leg1_liability; }
+                                if (leg1_isFreebet && leg1_type === 'back' && leg1_outcome === 'win') leg1_profitLoss = leg1_stake * (leg1_odd - 1); if (leg1_isFreebet && (leg1_outcome === 'loss' || (leg1_type === 'lay' && leg1_outcome === 'loss'))) leg1_profitLoss = 0; 
+                                if (exchangePlatforms.includes(leg1_platform.toLowerCase()) && !leg1_isFreebet && leg1_profitLoss > 0) leg1_profitLoss -= leg1_profitLoss * (leg1_commission / 100);
+                                operationOverallProfitLoss += leg1_profitLoss; if(leg1_outcome === 'win') operationHasWins = true; if(leg1_outcome === 'loss') operationHasLosses = true;
+                            } else operationIsPending = true;
+                            legsData.push({ gameEvent: leg1_gameEvent, platform: leg1_platform, type: leg1_type, stake: leg1_stake, odd: leg1_odd, liability: leg1_liability, commission: leg1_commission, outcome: leg1_outcome, isFreebet: leg1_isFreebet, profitLoss: parseFloat(leg1_profitLoss.toFixed(2)) });
+                            
+                            const additionalLegs = legsContainer.querySelectorAll('.leg-entry');
+                            for (let i = 0; i < additionalLegs.length; i++) {
+                                const legDiv = additionalLegs[i]; const legIndex = legDiv.id.split('_')[1]; 
+                                const leg_gameEvent = document.getElementById(`legGameEvent_${legIndex}`).value.trim(); 
+                                const leg_platform = document.getElementById(`legPlatform_${legIndex}`).value; 
+                                const leg_type = document.getElementById(`legBetType_${legIndex}`).value; 
+                                const leg_stake_val = document.getElementById(`legBetType_${legIndex}`).value === 'back' ? document.getElementById(`legBetAmount_${legIndex}`).value : document.getElementById(`legLayStake_${legIndex}`).value; 
+                                const leg_stake = parseFloat(leg_stake_val) || 0; 
+                                const leg_odd = parseFloat(document.getElementById(`legOdd_${legIndex}`).value) || 1; 
+                                const leg_commission = parseFloat(document.getElementById(`legCommission_${legIndex}`).value) || 0; 
+                                const leg_outcome = document.getElementById(`legOutcome_${legIndex}`).value; 
+                                const leg_isFreebet = document.getElementById(`legIsFreebet_${legIndex}`).checked; 
+                                let leg_liability = 0; let leg_profitLoss = 0;
+
+                                if (!leg_gameEvent) { 
+                                    showCustomModal(`Erro na Operação ${parseInt(legIndex) + 1}`, `O campo "Jogo/Evento" é obrigatório para a Operação ${parseInt(legIndex) + 1}.`);
+                                    return;
+                                }
+                                if (!leg_platform || !leg_type || leg_stake <= 0 || leg_odd <= 1 || !leg_outcome) { showCustomModal(`Erro na Operação ${parseInt(legIndex) + 1}`, `Preencha todos os campos obrigatórios da Operação ${parseInt(legIndex) + 1}.`); return; }
+                                
+                                if (leg_type === 'lay') { leg_liability = leg_stake * (leg_odd - 1); if (leg_liability <=0 && leg_outcome === 'loss') { showCustomModal(`Erro na Operação ${parseInt(legIndex) + 1}`, `Responsabilidade Lay inválida para resultado de perda na Operação ${parseInt(legIndex) + 1}.`); return; } } else leg_liability = leg_stake;
+                                operationTotalStake += leg_stake; if(leg_type === 'lay') operationTotalLiability += leg_liability;
+                                if (leg_outcome !== 'pending') {
+                                    if (leg_type === 'back') { if (leg_outcome === 'win') leg_profitLoss = (leg_stake * leg_odd) - leg_stake; else if (leg_outcome === 'loss') leg_profitLoss = -leg_stake; }
+                                    else { if (leg_outcome === 'win') leg_profitLoss = leg_stake; else if (leg_outcome === 'loss') leg_profitLoss = -leg_liability; }
+                                    if (leg_isFreebet && leg_type === 'back' && leg_outcome === 'win') leg_profitLoss = leg_stake * (leg_odd - 1); if (leg_isFreebet && (leg_outcome === 'loss' || (leg_type === 'lay' && leg_outcome === 'loss'))) leg_profitLoss = 0;
+                                    if (exchangePlatforms.includes(leg_platform.toLowerCase()) && !leg_isFreebet && leg_profitLoss > 0) leg_profitLoss -= leg_profitLoss * (leg_commission / 100);
+                                    operationOverallProfitLoss += leg_profitLoss; if(leg_outcome === 'win') operationHasWins = true; if(leg_outcome === 'loss') operationHasLosses = true;
+                                } else operationIsPending = true;
+                                legsData.push({ gameEvent: leg_gameEvent, platform: leg_platform, type: leg_type, stake: leg_stake, odd: leg_odd, liability: leg_liability, commission: leg_commission, outcome: leg_outcome, isFreebet: leg_isFreebet, profitLoss: parseFloat(leg_profitLoss.toFixed(2)) });
+                            }
+                            if (legsData.length < 1 && isCombinedBetMode) { showCustomModal('Erro', 'Uma aposta combinada precisa de pelo menos uma operação definida.'); return; } 
+                            
+                            let finalOperationOutcome = 'pending'; 
+                            let finalOperationProfitLoss = operationOverallProfitLoss; 
+                            const mainOperationCommissionPercentage = 0; 
+                            
+                            if (!operationIsPending) { 
+                                if (finalOperationProfitLoss > 0) finalOperationOutcome = 'win'; 
+                                else if (finalOperationProfitLoss < 0) finalOperationOutcome = 'loss'; 
+                                else finalOperationOutcome = 'push'; 
+                            } else finalOperationOutcome = 'pending';
+                            
+                            const combinedBetData = { 
+                                id: editingBetId || Date.now() + Math.random().toString(36).substr(2, 9), 
+                                date: overallBetDate, 
+                                sportCategory: overallSportCategory, 
+                                betNature: overallBetNature, 
+                                operationType: 'combined', 
+                                gameEvent: overallGameEvent, 
+                                legs: legsData, 
+                                outcome: finalOperationOutcome, 
+                                winLossAmount: parseFloat(operationOverallProfitLoss.toFixed(2)), 
+                                profitLoss: parseFloat(finalOperationProfitLoss.toFixed(2)), 
+                                totalStake: parseFloat(operationTotalStake.toFixed(2)), 
+                                totalLiability: parseFloat(operationTotalLiability.toFixed(2)), 
+                                timestamp: overallTimestamp, 
+                                commission: mainOperationCommissionPercentage, 
+                                isFreebet: legsData.some(leg => leg.isFreebet) 
+                            };
+                            if (editingBetId) { const index = activeBankroll.bets.findIndex(bet => bet.id === editingBetId); if (index !== -1) activeBankroll.bets[index] = combinedBetData; } 
+                            else activeBankroll.bets.push(combinedBetData);
+                            showCustomModal('Sucesso!', `Operação Combinada ${editingBetId ? 'atualizada' : 'registada'} com sucesso.`);
+                        } else { 
+                            const simple_platform = platformSelect.value; 
+                            const simple_betType = betTypeSelect.value; 
+                            const simple_stake = parseFloat(simple_betType === 'back' ? betAmountInput.value : layStakeInput.value) || 0; 
+                            const simple_odd = parseFloat(oddInput.value) || 1; 
+                            const simple_commission = parseFloat(commissionInput.value) || 0; 
+                            const simple_outcome = outcomeInput.value; 
+                            const simple_isFreebet = isFreebetInput.checked; 
+                            let simple_liability = 0; let simple_profitLoss = 0; let simple_winLossAmount = 0;
+
+                            if (!simple_platform || !simple_betType || simple_stake <= 0 || simple_odd <= 1 || !simple_outcome) { showCustomModal('Erro de Entrada', 'Preencha todos os campos obrigatórios da aposta (Plataforma, Tipo, Stake > 0, Odd > 1, Resultado).'); return; }
+                            
+                            if (simple_outcome === 'pending') { 
+                                simple_winLossAmount = 0; simple_profitLoss = 0; 
+                                if (simple_betType === 'back') simple_liability = simple_stake; 
+                                else simple_liability = simple_stake * (simple_odd - 1); 
+                            } else {
+                                if (simple_betType === 'back') { 
+                                    simple_liability = simple_stake; 
+                                    if (simple_outcome === 'win') { simple_winLossAmount = simple_stake * simple_odd; simple_profitLoss = simple_winLossAmount - simple_stake; } 
+                                    else if (simple_outcome === 'loss') { simple_winLossAmount = 0; simple_profitLoss = -simple_stake; } 
+                                    else if (simple_outcome === 'push') { simple_winLossAmount = simple_stake; simple_profitLoss = 0; } 
+                                    if (simple_isFreebet && simple_outcome === 'win') simple_profitLoss = simple_stake * (simple_odd - 1); 
+                                    if (simple_isFreebet && simple_outcome === 'loss') simple_profitLoss = 0; 
+                                } else { 
+                                    simple_liability = simple_stake * (simple_odd - 1); 
+                                    if (simple_liability <=0 && simple_outcome === 'loss') { showCustomModal('Erro de Entrada', 'Responsabilidade Lay inválida para resultado de perda.'); return; } 
+                                    if (simple_outcome === 'win') { simple_winLossAmount = simple_stake; simple_profitLoss = simple_stake; } 
+                                    else if (simple_outcome === 'loss') { simple_winLossAmount = 0; simple_profitLoss = -simple_liability; } 
+                                    else if (simple_outcome === 'push') { simple_winLossAmount = 0; simple_profitLoss = 0; } 
+                                    if (simple_isFreebet && simple_outcome === 'win') simple_profitLoss = simple_stake; 
+                                    if (simple_isFreebet && simple_outcome === 'loss') simple_profitLoss = 0; 
+                                }
+                                if (exchangePlatforms.includes(simple_platform.toLowerCase()) && !simple_isFreebet && simple_profitLoss > 0) simple_profitLoss -= simple_profitLoss * (simple_commission / 100);
+                            }
+                            const singleBetData = { 
+                                id: editingBetId || Date.now() + Math.random().toString(36).substr(2, 9), 
+                                date: overallBetDate, 
+                                sportCategory: overallSportCategory, 
+                                betNature: overallBetNature, 
+                                gameEvent: overallGameEvent, 
+                                operationType: 'single', 
+                                platform: simple_platform, 
+                                type: simple_betType, 
+                                stake: simple_stake, 
+                                odd: simple_odd, 
+                                liability: parseFloat(simple_liability.toFixed(2)), 
+                                commission: simple_commission, 
+                                outcome: simple_outcome, 
+                                isFreebet: simple_isFreebet, 
+                                winLossAmount: parseFloat(simple_winLossAmount.toFixed(2)), 
+                                profitLoss: parseFloat(simple_profitLoss.toFixed(2)), 
+                                timestamp: overallTimestamp 
+                            };
+                            if (editingBetId) { const index = activeBankroll.bets.findIndex(bet => bet.id === editingBetId); if (index !== -1) activeBankroll.bets[index] = singleBetData; } 
+                            else activeBankroll.bets.push(singleBetData);
+                            showCustomModal('Sucesso!', `Aposta ${editingBetId ? 'atualizada' : 'registada'} com sucesso.`);
+                        }
+                        saveAllData(); rebuildBankrollStateForActive(); renderAllVisualsForActive(); cancelEdit();
+                    } catch (error) { console.error("Erro ao processar formulário:", error); showCustomModal('Erro Inesperado', 'Ocorreu um erro ao processar sua aposta. Verifique os dados e tente novamente. Detalhes: ' + error.message); }
+                });
+            }
+
+            if (updateBankrollButton) {
+                updateBankrollButton.addEventListener('click', () => {
+                    const activeBankroll = getActiveBankroll();
+                    if (!activeBankroll) { showCustomModal('Erro', 'Nenhuma banca ativa selecionada.'); return; }
+                    const newBalance = parseFloat(bankrollInput.value);
+                    if (isNaN(newBalance)) { showCustomModal('Erro', 'Valor inválido para o saldo da banca.'); return; }
+                    
+                    const manualUpdateTimestamp = Date.now();
+                    activeBankroll.bankrollHistory.push({ 
+                        date: new Date().toISOString().split('T')[0], 
+                        value: newBalance, 
+                        timestamp: manualUpdateTimestamp, 
+                        type: 'manual', 
+                        eventId: 'manual_update_' + manualUpdateTimestamp,
+                        description: 'Atualização Manual de Saldo'
+                    });
+                    
+                    rebuildBankrollStateForActive(); 
+                    saveAllData(); 
+                    renderAllVisualsForActive(); 
+                    bankrollInput.value = '';
+                    showCustomModal('Sucesso', `Saldo da banca "${activeBankroll.name}" atualizado para ${formatCurrency(activeBankroll.currentBalance)}.`);
+                });
+            }
+
+            [filterDateInput, filterWeekSelect, filterMonthSelect, filterYearSelect, filterPlatformSelect, filterBetNatureSelect, filterGameEventInput].forEach(filterElement => { 
+                if (filterElement) {
+                    const eventType = filterElement.type === 'text' ? 'input' : 'change'; 
+                    filterElement.addEventListener(eventType, () => {
+                        if (filterElement.type !== 'text') filterElement.dataset.selected = filterElement.value; 
+                        renderBetsForActive();
+                    });
+                }
+            });
+            tableHeaders.forEach(th => {
+                th.addEventListener('click', () => {
+                    const sortKey = th.dataset.sort;
+                    if (!sortKey || sortKey === 'commission' || sortKey === 'type' || sortKey === 'sportCategory') return; 
+                    if (currentSortColumn === sortKey) currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    else { currentSortColumn = sortKey; currentSortDirection = 'desc'; }
+                    renderBetsForActive();
+                });
+            });
+
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const contentId = header.dataset.target;
+                    const content = document.getElementById(contentId);
+                    const arrow = header.querySelector('.accordion-arrow');
+                    if (content) {
+                        const isOpen = content.classList.contains('open');
+                        header.closest('#detailedSummaries').querySelectorAll('.accordion-content.open').forEach(openContent => {
+                            if (openContent !== content) {
+                                openContent.classList.remove('open');
+                                openContent.style.display = 'none';
+                                const otherArrow = openContent.previousElementSibling.querySelector('.accordion-arrow');
+                                if (otherArrow) otherArrow.classList.remove('open');
+                            }
+                        });
+                        content.classList.toggle('open', !isOpen);
+                        content.style.display = isOpen ? 'none' : 'flex'; 
+                        if (arrow) arrow.classList.toggle('open', !isOpen);
+                    }
+                });
+            });
+
+            if (themeToggleBtn) { 
+                themeToggleBtn.addEventListener('click', toggleTheme);
+            }
+
+            loadAllData(); 
+            renderUIForActiveBankroll();
+            toggleLegBetTypeFields('main'); 
+            toggleLegCommissionField('main');
+            updateCombinedModeUI();
+        });
+
+        window.editBet = (betId) => {
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll) return;
+            const betToEdit = activeBankroll.bets.find(bet => bet.id === betId);
+            if (!betToEdit) { showCustomModal('Erro', 'Aposta não encontrada para edição.'); return; }
+
+            editingBetId = betId;
+            betDateInput.value = betToEdit.date;
+            sportCategorySelect.value = betToEdit.sportCategory;
+            betNatureSelect.value = betToEdit.betNature;
+            gameEventInput.value = betToEdit.gameEvent || ''; 
+
+            if (betToEdit.operationType === 'combined') {
+                isCombinedBetMode = true;
+                updateCombinedModeUI();
+                legsContainer.innerHTML = ''; 
+                legCounter = 0; 
+
+                betToEdit.legs.forEach((leg, index) => {
+                    if (index === 0) { 
+                        gameEventInput.value = leg.gameEvent || betToEdit.gameEvent || ''; 
+                        platformSelect.value = leg.platform;
+                        betTypeSelect.value = leg.type;
+                        toggleLegBetTypeFields('main');
+                        if (leg.type === 'back') betAmountInput.value = leg.stake;
+                        else layStakeInput.value = leg.stake;
+                        oddInput.value = leg.odd;
+                        calculateLegLayLiability('main');
+                        commissionInput.value = leg.commission || 0;
+                        toggleLegCommissionField('main');
+                        outcomeInput.value = leg.outcome;
+                        isFreebetInput.checked = leg.isFreebet;
+                        if(leg1Title) leg1Title.classList.remove('hidden');
+                    } else {
+                        addLegToForm(leg); 
+                    }
+                });
+                 if (betToEdit.legs.length === 0 && leg1Title) leg1Title.classList.add('hidden');
+
+
+            } else { 
+                isCombinedBetMode = false;
+                updateCombinedModeUI();
+                legsContainer.innerHTML = ''; legCounter = 1;
+                if(leg1Title) leg1Title.classList.add('hidden');
+
+                platformSelect.value = betToEdit.platform;
+                betTypeSelect.value = betToEdit.type;
+                toggleLegBetTypeFields('main');
+                if (betToEdit.type === 'back') betAmountInput.value = betToEdit.stake;
+                else layStakeInput.value = betToEdit.stake;
+                oddInput.value = betToEdit.odd;
+                calculateLegLayLiability('main');
+                commissionInput.value = betToEdit.commission || 0;
+                toggleLegCommissionField('main');
+                outcomeInput.value = betToEdit.outcome;
+                isFreebetInput.checked = betToEdit.isFreebet;
+            }
+
+            submitButton.textContent = 'Atualizar Aposta';
+            cancelEditButton.classList.remove('hidden');
+            document.getElementById('registerBetCard').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.deleteBet = (betId) => {
+            const activeBankroll = getActiveBankroll();
+            if (!activeBankroll) return;
+            showCustomModal('Confirmar Exclusão', 'Tem certeza que deseja excluir esta aposta?', 
+                [
+                    {text: 'Cancelar', class:'cancel'},
+                    {text: 'Excluir', class: 'confirm-danger', action: () => {
+                        activeBankroll.bets = activeBankroll.bets.filter(bet => bet.id !== betId);
+                        saveAllData();
+                        rebuildBankrollStateForActive();
+                        renderAllVisualsForActive();
+                        showCustomModal('Sucesso', 'Aposta excluída.');
+                    }}
+                ]
+            );
+        };
+
+    </script>
+</body>
+</html>
+�
